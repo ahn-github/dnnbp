@@ -23,16 +23,13 @@ input signed [WIDTH-1:0] i_b;
 
 // output ports
 output signed [WIDTH-1:0] o;
-// output signed [WIDTH-1:0] z;
 
 // wires
 wire signed [WIDTH*NUM-1:0] o_mul;
 wire signed [WIDTH-1:0] o_add;
 
 mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(i_w), .o(o_mul));
-adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({i_b, o_mul}), .o(o));
-// sigmf sigmoid (.i(o_add), .o(o));
-
-// assign z = o_add;
+adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({i_b, o_mul}), .o(o_add));
+sigmf sigmoid (.i(o_add), .o(o));
 
 endmodule
