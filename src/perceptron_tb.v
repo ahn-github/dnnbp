@@ -22,6 +22,7 @@ wire signed [7:0] k0_msb, k1_msb, w0_msb, w1_msb, b_msb, a_msb, z_msb;
 wire [23:0] k0_frac, k1_frac, w0_frac, w1_frac, b_frac, a_frac, z_frac;
 
 // registers
+reg clk, rst, wr;
 reg signed [31:0] k0;
 reg signed [31:0] k1;
 reg signed [31:0] w0;
@@ -32,10 +33,23 @@ reg signed [31:0] b;
 integer f;
 
 // perceptron dut (.i_k0(k0), .i_k1(k1), .i_w0(w0), .i_w1(w1), .i_bias(b), .o_a(a_dut), .o_z(z_dut));
-perceptron #(.NUM(NUM), .WIDTH(WIDTH)) dut (.i_k({k1, k0}), .i_w({w1, w0}), .i_b(b), .o(a_dut));
+perceptron #(.NUM(NUM), .WIDTH(WIDTH)) dut (
+	.clk(clk),
+	.rst(rst),
+	.wr(wr),
+	.i_k({k1, k0}),
+	.i_w({w1, w0}),
+	.i_b(b),
+	.o(a_dut)
+);
 
 initial begin
 	f = $fopen("output.txt","w");
+	wr = 1'b0;
+	clk = 1'b0;
+	rst = 1'b1;
+	#50;
+	rst = 1'b0;
 	repeat(50) begin
 		w0[31:24] <= 8'd0;
 		w0[23:0] <= $random;
@@ -61,6 +75,12 @@ initial begin
 	#50;
 	// $display("%d, %d\n", w0[31:24], w0[23:0]);
 	$fclose(f);
+end
+
+always
+begin
+	clk = ~clk;
+	#25;
 end
 
 assign k0_msb = k0[31:24]; assign k0_frac = k0[23:0];
