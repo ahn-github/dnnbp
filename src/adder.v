@@ -22,7 +22,7 @@ input signed [NUM*WIDTH-1:0] i;
 output signed [WIDTH-1:0] o;
 
 // wires
-wire [WIDTH-1:0] o_add [NUM*2-2:0];
+wire signed [WIDTH-1:0] o_add [NUM*2-2:0];
 
 // assign o_add[0] = 32'd0;
 
