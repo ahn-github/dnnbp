@@ -9,7 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module array(clk, rst, rw, i, o);
+module array(clk, rst, wr, i, o);
 
 // parameters
 parameter N_IN = 40;
@@ -22,7 +22,7 @@ parameter WIDTH = 32;
 input clk, rst;
 
 // control ports
-input rw;
+input wr;
 
 // input ports
 input signed [N_IN*WIDTH-1:0] i;

@@ -40,12 +40,13 @@ reg signed [NUM*WIDTH-1:0] wght;
 reg signed [WIDTH-1:0] bias_mem [0:0];
 reg signed [WIDTH-1:0] bias;
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk or posedge rst)
+begin
 	if (rst)
 	begin
 		// RAM initialization
-		$readmemh("wght_mem.list", wght_mem);
-		$readmemh("bias_mem.list", bias_mem);
+		$readmemh("mem_wght.list", wght_mem);
+		$readmemh("mem_bias.list", bias_mem);
 	end
 	else if (wr)
 	begin
