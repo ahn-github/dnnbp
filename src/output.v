@@ -31,8 +31,11 @@ input signed [WIDTH-1:0] i_b;
 // output ports
 output signed [NUM_PCTN*WIDTH-1:0] o;
 
+wire signed [31:0] o_1;
+wire signed [31:0] o_2;
+
 // instantiating a NUM_PCTN of perceptrons
-perceptron #(.NUM(NUM_INPUT), .WIDTH(WIDTH)) pctn[NUM_PCTN-1:0] (
+/*perceptron #(.NUM(NUM_INPUT), .WIDTH(WIDTH)) pctn[NUM_PCTN-1:0] (
 	.clk(clk),
 	.rst(rst),
 	.wr(wr),
@@ -41,5 +44,28 @@ perceptron #(.NUM(NUM_INPUT), .WIDTH(WIDTH)) pctn[NUM_PCTN-1:0] (
 	.i_b(i_b),
 	.o(o)
 );
+*/
+
+perceptron_4 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_1 (
+	.clk(clk),
+	.rst(rst),
+	.wr(wr),
+	.i_k(i_k),
+	.i_w(i_w),
+	.i_b(i_b),
+	.o(o_1)
+);
+
+perceptron_5 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_2 (
+	.clk(clk),
+	.rst(rst),
+	.wr(wr),
+	.i_k(i_k),
+	.i_w(i_w),
+	.i_b(i_b),
+	.o(o_2)
+);
+
+assign o = {o_2, o_1};
 
 endmodule
