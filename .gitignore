@@ -2,4 +2,8 @@
 *.mti
 *.mpf
 *.wlf
+*.ini
+*.bak
+*.LOL
+
 output.txt
