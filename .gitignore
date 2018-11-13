@@ -2,4 +2,7 @@
 *.mti
 *.mpf
 *.wlf
+*.bak
+*.ini
+
 output.txt

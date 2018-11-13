@@ -2,10 +2,10 @@ module ai_top(clk, rst, wr, addr_i, addr_o, i);
 
 // parameters
 parameter WIDTH = 32;
-parameter N_IN = 40;
-parameter N_OUT = 8;
+parameter N_IN = 2;
+parameter N_OUT = 2;
 parameter N_HL = 1;
-parameter N_HL_P = 40;
+parameter N_HL_P = 3;
 
 // common ports
 input clk, rst;
