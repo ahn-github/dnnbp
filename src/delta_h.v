@@ -28,9 +28,10 @@ output signed [WIDTH-1:0] o;
 // wires
 wire signed [NUM*WIDTH-1:0] o_mul;
 wire signed [WIDTH-1:0] o_add;
+wire signed [WIDTH-1:0] temp1;
+wire signed [WIDTH-1:0] temp2;
 
 // registers
-reg signed [WIDTH-1:0] temp;
 reg signed [WIDTH-1:0] o;
 
 always @(posedge clk or posedge rst)
@@ -38,30 +39,25 @@ begin
 	if (rst)
 	begin
 		// Initialization
-		o <= WIDTH'b0;
+		o <= 32'b0;
 	end
-	else if (en)
-	begin
-		// To add new value to RAM
-		temp <= o_mul;
-	end
-	else
-	begin
-		// To read value from RAM
-		temp <= WIDTH'b0;
-	end
+	o <= temp2;
 end
+
+// Select adder input
+assign temp1 = en ? o : 32'b0;
 
 // Generate N multiplier, o_mul is an array of multiplier outputs, WIDTH bits each
 mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_prevd), .i_b(i_w), .o(o_mul));
 
 // Adding all multiplier output & bias
-adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({bias, 0_mul}), .o(o_add));
+adder #(.NUM(NUM), .WIDTH(WIDTH)) add (.i(o_mul), .o(o_add));
 
 // Dif_sigmoid
 
 // Accumulate
 // Soon to be edited when dif_sigmoid block is done
-adder #(.NUM(NUM+1), .WIDTH(WIDTH)) acc (.i({o_add, temp}), .o(o));
+adder #(.NUM(NUM), .WIDTH(WIDTH)) acc (.i({o_add, temp1}), .o(temp2));
 
+// Output
 endmodule
