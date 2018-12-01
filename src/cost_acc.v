@@ -33,7 +33,8 @@ output signed [WIDTH-1:0] o;
 // wires
 wire signed [WIDTH-1:0] o_mult_d1;
 wire signed [WIDTH-1:0] o_mult_d2;
-wire signed [WIDTH-1:0] add_sr;
+wire signed [WIDTH-1:0] o_add;
+wire signed [WIDTH-1:0] sr;
 wire signed [WIDTH-1:0] temp2;
 wire signed [WIDTH-1:0] temp1;
 
@@ -42,9 +43,11 @@ reg signed [WIDTH-1:0] o;
 
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d1 (.i_a(i_d1), .i_b(i_d1), .o(o_mult_d1));
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d2 (.i_a(i_d2), .i_b(i_d2), .o(o_mult_d2));
-assign add_sr = (o_mult_d1 + o_mult_d2) >> 1;
 
-adder #(.NUM(NUM), .WIDTH(WIDTH)) acc (.i({add_sr, temp1}), .o(temp2));
+adder #(.NUM(NUM), .WIDTH(WIDTH)) add (.i({o_mult_d1, o_mult_d2}), .o(o_add));
+assign sr = (o_add) >> 1;
+
+adder #(.NUM(NUM), .WIDTH(WIDTH)) acc (.i({sr, temp1}), .o(temp2));
 
 always @(posedge clk or posedge rst) begin
 	if (rst) begin
