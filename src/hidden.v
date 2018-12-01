@@ -31,7 +31,7 @@ input signed [WIDTH-1:0] i_b;
 // output ports
 output signed [NUM_PCTN*WIDTH-1:0] o;
 
-// wire ports
+// wires
 wire signed [31:0] o_1;
 wire signed [31:0] o_2;
 wire signed [31:0] o_3;
