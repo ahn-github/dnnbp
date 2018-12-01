@@ -31,8 +31,4 @@ assign adder = 32'h01000000 - i;
 
 mult_2in #(.WIDTH(32), .FRAC(24)) inst_mult_2in (.i_a(adder), .i_b(i), .o(o));
 
-
-
-
-
 endmodule
