@@ -41,7 +41,8 @@ begin
 		// Initialization
 		o <= 32'b0;
 	end
-	o <= temp2;
+	else
+		o <= temp2;
 end
 
 // Select adder input
