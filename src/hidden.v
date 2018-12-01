@@ -50,35 +50,80 @@ wire signed [31:0] o_3;
 );
 */
 
-perceptron_1 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_1 (
-	.clk(clk),
-	.rst(rst),
-	.wr(wr),
-	.i_k(i_k),
-	.i_w(i_w),
-	.i_b(i_b),
-	.o(o_1)
-);
+perceptron #(
+		.NUM(NUM_INPUT),
+		.WIDTH(WIDTH),
+		.FILE_NAME("mem_wght1.list")
+	) perceptron_1 (
+		.clk (clk),
+		.rst (rst),
+		.wr  (wr),
+		.i_k (i_k),
+		.i_w (i_w),
+		.i_b (i_b),
+		.o_a (o_1)
+		// .o_w ()
+	);
 
-perceptron_2 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_2 (
-	.clk(clk),
-	.rst(rst),
-	.wr(wr),
-	.i_k(i_k),
-	.i_w(i_w),
-	.i_b(i_b),
-	.o(o_2)
-);
+perceptron #(
+		.NUM(NUM_INPUT),
+		.WIDTH(WIDTH),
+		.FILE_NAME("mem_wght2.list")
+	) perceptron_2 (
+		.clk (clk),
+		.rst (rst),
+		.wr  (wr),
+		.i_k (i_k),
+		.i_w (i_w),
+		.i_b (i_b),
+		.o_a (o_2)
+		// .o_w (o_w)
+	);
 
-perceptron_3 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_3 (
-	.clk(clk),
-	.rst(rst),
-	.wr(wr),
-	.i_k(i_k),
-	.i_w(i_w),
-	.i_b(i_b),
-	.o(o_3)
-);
+perceptron #(
+		.NUM(NUM_INPUT),
+		.WIDTH(WIDTH),
+		.FILE_NAME("mem_wght3.list")
+	) perceptron_3 (
+		.clk (clk),
+		.rst (rst),
+		.wr  (wr),
+		.i_k (i_k),
+		.i_w (i_w),
+		.i_b (i_b),
+		.o_a (o_3)
+		// .o_w (o_w)
+	);
+
+// perceptron_1 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_1 (
+// 	.clk(clk),
+// 	.rst(rst),
+// 	.wr(wr),
+// 	.i_k(i_k),
+// 	.i_w(i_w),
+// 	.i_b(i_b),
+// 	.o(o_1)
+// );
+
+// perceptron_2 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_2 (
+// 	.clk(clk),
+// 	.rst(rst),
+// 	.wr(wr),
+// 	.i_k(i_k),
+// 	.i_w(i_w),
+// 	.i_b(i_b),
+// 	.o(o_2)
+// );
+
+// perceptron_3 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_3 (
+// 	.clk(clk),
+// 	.rst(rst),
+// 	.wr(wr),
+// 	.i_k(i_k),
+// 	.i_w(i_w),
+// 	.i_b(i_b),
+// 	.o(o_3)
+// );
 
 
 
