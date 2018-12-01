@@ -4,17 +4,19 @@
 // 
 // Module Name      : Perceptron Module
 // File Name        : perceptron.v
-// Version          : 1.0
-// Description      : Perceptron with 2 inputs, 2 weight, and 1 bias.
-//                    Giving output of activation and z value.
+// Version          : 2.0
+// Description      : Perceptron with NUM inputs, NUM weight, and 1 bias.
+//                    Giving output of activation and weight value for
+//					  backpropagation purpose.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module perceptron (clk, rst, wr, i_k, i_w, i_b, o);
+module perceptron (clk, rst, wr, i_k, i_w, i_b, o_a, o_w);
 
 // parameters
 parameter NUM = 2;
 parameter WIDTH = 32;
+parameter FILE_NAME = "mem_wght.list";
 
 // common ports
 input clk, rst;
@@ -28,16 +30,17 @@ input signed [NUM*WIDTH-1:0] i_w;
 input signed [WIDTH-1:0] i_b;
 
 // output ports
-output signed [WIDTH-1:0] o;
+output signed [WIDTH-1:0] o_a;
+output signed [NUM*WIDTH-1:0] o_w;
 
 // wires
 wire signed [NUM*WIDTH-1:0] o_mul;
 wire signed [WIDTH-1:0] o_add;
 
 // registers
-reg signed [NUM*WIDTH-1:0] wght_mem [0:0];
+reg signed [(NUM+1)*WIDTH-1:0] wght_mem [0:0];
 reg signed [NUM*WIDTH-1:0] wght;
-reg signed [WIDTH-1:0] bias_mem [0:0];
+
 reg signed [WIDTH-1:0] bias;
 
 always @(posedge clk or posedge rst)
@@ -45,20 +48,18 @@ begin
 	if (rst)
 	begin
 		// RAM initialization
-		$readmemh("mem_wght.list", wght_mem);
-		$readmemh("mem_bias.list", bias_mem);
+		$readmemb(FILE_NAME, wght_mem);
 	end
 	else if (wr)
 	begin
 		// To add new value to RAM
 		wght_mem[0] <= i_w;
-		bias_mem[0] <= i_b;
 	end
 	else
 	begin
 		// To read value from RAM
-		wght <= wght_mem[0];
-		bias <= bias_mem[0];
+		wght <= wght_mem[0][NUM*WIDTH-1:0];
+		bias <= wght_mem[0][(NUM+1)*WIDTH-1:NUM*WIDTH];
 	end
 end
 
@@ -69,6 +70,9 @@ mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
 adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({bias, o_mul}), .o(o_add));
 
 // Using sigmoid function for the Activation value
-sigmf sigmoid (.i(o_add), .o(o));
+sigmf sigmoid (.i(o_add), .o(o_a));
+
+// Tap the weight value to output port
+assign o_w = wght;
 
 endmodule
