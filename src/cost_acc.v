@@ -30,26 +30,30 @@ input signed [WIDTH-1:0] i_d2;
 // output ports
 output signed [WIDTH-1:0] o;
 
-// registers
-reg signed [WIDTH-1:0] acc;
-
 // wires
 wire signed [WIDTH-1:0] o_mult_d1;
 wire signed [WIDTH-1:0] o_mult_d2;
 wire signed [WIDTH-1:0] add_sr;
+wire signed [WIDTH-1:0] temp2;
+wire signed [WIDTH-1:0] temp1;
+
+// registers
+reg signed [WIDTH-1:0] o;
 
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d1 (.i_a(i_d1), .i_b(i_d1), .o(o_mult_d1));
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d2 (.i_a(i_d2), .i_b(i_d2), .o(o_mult_d2));
 assign add_sr = (o_mult_d1 + o_mult_d2) >> 1;
 
+adder #(.NUM(NUM), .WIDTH(WIDTH)) acc (.i({add_sr, temp1}), .o(temp2));
+
 always @(posedge clk or posedge rst) begin
 	if (rst) begin
-		acc = 32'd0;
+		o <= 32'd0;
 	end
-	else if (en) begin
-		acc = acc + add_sr;
-	end
+	else
+		o <= temp2;
 end
 
-assign o = acc;
+assign temp1 = en ? o : 32'd0;
+
 endmodule
