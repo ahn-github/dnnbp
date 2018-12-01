@@ -37,6 +37,7 @@ reg signed [WIDTH-1:0] acc;
 wire signed [WIDTH-1:0] o_mult_d1;
 wire signed [WIDTH-1:0] o_mult_d2;
 wire signed [WIDTH-1:0] add_sr;
+wire signed [WIDTH-1:0] temp;
 
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d1 (.i_a(i_d1), .i_b(i_d1), .o(o_mult_d1));
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d2 (.i_a(i_d2), .i_b(i_d2), .o(o_mult_d2));
@@ -47,9 +48,11 @@ always @(posedge clk or posedge rst) begin
 		acc = 32'd0;
 	end
 	else if (en) begin
-		acc = acc + add_sr;
+		acc = acc + temp;
 	end
 end
+
+assign temp = en ? add_sr : 32'd0;
 
 assign o = acc;
 endmodule
