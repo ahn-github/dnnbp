@@ -21,9 +21,9 @@ input signed [WIDTH-1:0] i;
 // output ports
 output signed[WIDTH-1:0] o;
 
-wire signed[31:0]invert_a;
+wire signed[WIDTH-1:0]invert_a;
 
-wire signed[31:0] adder;
+wire signed[WIDTH-1:0] adder;
 
 // module
 
