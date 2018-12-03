@@ -11,7 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module perceptron (clk, rst, wr, i_k, i_w, i_b, o_a, o_w);
+module perceptron (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
 parameter NUM = 2;
@@ -32,6 +32,7 @@ input signed [WIDTH-1:0] i_b;
 // output ports
 output signed [WIDTH-1:0] o_a;
 output signed [NUM*WIDTH-1:0] o_w;
+output signed [WIDTH-1:0] o_b;
 
 // wires
 wire signed [NUM*WIDTH-1:0] o_mul;
@@ -74,5 +75,6 @@ sigmf sigmoid (.i(o_add), .o(o_a));
 
 // Tap the weight value to output port
 assign o_w = wght;
+assign o_b = bias;
 
 endmodule

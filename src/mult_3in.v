@@ -27,6 +27,6 @@ wire signed [3*WIDTH-1:0] mult;
 // multiplying coefficient and input
 // and taking only 32 bits, with 24 bit FRAC
 assign mult = i_a * i_b * i_c;
-assign o = mult[(2*FRAC+31):(2*FRAC)];
+assign o = mult[(2*FRAC+31):(2*FRAC)] + {31'd0, mult[47]};
 
 endmodule

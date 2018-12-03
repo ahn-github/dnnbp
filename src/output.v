@@ -57,8 +57,9 @@ perceptron #(
 		.i_k (i_k),
 		.i_w (i_w),
 		.i_b (i_b),
-		.o_a (o_1)
-		// .o_w (o_w)
+		.o_a (o_1),
+		.o_w (),
+		.o_b ()
 	);
 
 perceptron #(
@@ -72,8 +73,9 @@ perceptron #(
 		.i_k (i_k),
 		.i_w (i_w),
 		.i_b (i_b),
-		.o_a (o_2)
-		// .o_w (o_w)
+		.o_a (o_2),
+		.o_w (),
+		.o_b ()
 	);
 
 // perceptron_4 #(.NUM(NUM_INPUT), .WIDTH(WIDTH))  module_perceptron_1 (

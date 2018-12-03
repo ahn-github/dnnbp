@@ -1,11 +1,11 @@
-module multiplexer ( input_a, input_b, sel, o);             
+module multiplexer (i_a, i_b, sel, o);             
  
 // parameters
 parameter WIDTH = 32;
 
 // input ports
-input signed [WIDTH-1:0] input_a;
-input signed [WIDTH-1:0] input_b;
+input signed [WIDTH-1:0] i_a;
+input signed [WIDTH-1:0] i_b;
 
 // control ports
 input sel;
@@ -13,7 +13,7 @@ input sel;
 // output ports
 output signed [WIDTH-1:0] o;
 
-assign o = sel ? input_b : input_a;
+assign o = sel ? i_b : i_a;
  
 endmodule
  

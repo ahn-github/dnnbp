@@ -44,10 +44,10 @@ reg signed [WIDTH-1:0] o;
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d1 (.i_a(i_d1), .i_b(i_d1), .o(o_mult_d1));
 mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d2 (.i_a(i_d2), .i_b(i_d2), .o(o_mult_d2));
 
-adder #(.NUM(NUM), .WIDTH(WIDTH)) add (.i({o_mult_d1, o_mult_d2}), .o(o_add));
+adder #(.NUM(2), .WIDTH(WIDTH)) add (.i({o_mult_d1, o_mult_d2}), .o(o_add));
 assign sr = (o_add) >> 1;
 
-adder #(.NUM(NUM), .WIDTH(WIDTH)) acc (.i({sr, temp1}), .o(temp2));
+adder #(.NUM(2), .WIDTH(WIDTH)) acc (.i({sr, temp1}), .o(temp2));
 
 always @(posedge clk or posedge rst) begin
 	if (rst) begin

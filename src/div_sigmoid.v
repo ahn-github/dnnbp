@@ -21,14 +21,10 @@ input signed [WIDTH-1:0] i;
 // output ports
 output signed[WIDTH-1:0] o;
 
-wire signed[WIDTH-1:0]invert_a;
-
+// wires
 wire signed[WIDTH-1:0] adder;
 
-// module
-
 assign adder = 32'h01000000 - i;
-
 mult_2in #(.WIDTH(32), .FRAC(24)) inst_mult_2in (.i_a(adder), .i_b(i), .o(o));
 
 endmodule
