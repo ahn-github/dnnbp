@@ -26,7 +26,7 @@ weight_bias_calc #(
 		.N_HL_P(N_HL_P),
 		.N_OUT(N_OUT),
 		.WIDTH(WIDTH)
-	) inst_delta_bias_calc (
+	) dut (
 		.clk       (clk),
 		.rst       (rst),
 		.en        (en),
@@ -56,7 +56,7 @@ begin
 
 	#100;
 	rst = 0;
-	#300;
+	#400;
 	// 8,5
 	i_k <= 64'h08000000_05000000;
 	i_hd_a <= 96'h00f12665_00e84ffe_00efbfff;

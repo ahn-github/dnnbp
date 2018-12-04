@@ -16,6 +16,7 @@ parameter N_IN = 2;
 parameter N_HL_P = 3;
 parameter N_OUT = 2;
 parameter WIDTH = 32;
+parameter FRAC = 24;
 
 // input ports
 input signed [N_HL_P*WIDTH-1:0] i_hd_a;
@@ -70,8 +71,8 @@ assign i_t1 = i_t[1*WIDTH-1 : 0];
 assign i_t2 = i_t[2*WIDTH-1 : 1*WIDTH];
 
 // Calculate Output Layer's Delta
-delta_out #(.WIDTH(WIDTH), .FRAC(24)) dlto_1 (.i_a(i_out_a1), .i_t(i_t1), .o_delta(o_dlto_1), .o_cost(o_cost_1));
-delta_out #(.WIDTH(WIDTH), .FRAC(24)) dlto_2 (.i_a(i_out_a2), .i_t(i_t2), .o_delta(o_dlto_2), .o_cost(o_cost_2));
+delta_out #(.WIDTH(WIDTH), .FRAC(FRAC)) dlto_1 (.i_a(i_out_a1), .i_t(i_t1), .o_delta(o_dlto_1), .o_cost(o_cost_1));
+delta_out #(.WIDTH(WIDTH), .FRAC(FRAC)) dlto_2 (.i_a(i_out_a2), .i_t(i_t2), .o_delta(o_dlto_2), .o_cost(o_cost_2));
 
 // Calculate Hidden Layer's Delta
 delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_1 (.i_a(i_hd_a1), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w1_2, i_out_w1_1}), .o(o_dlth_1));

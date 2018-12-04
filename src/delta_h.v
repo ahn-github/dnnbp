@@ -28,8 +28,6 @@ output signed [WIDTH-1:0] o;
 // wires
 wire signed [NUM*WIDTH-1:0] o_mul;
 wire signed [WIDTH-1:0] o_add;
-wire signed [WIDTH-1:0] temp_1;
-wire signed [WIDTH-1:0] temp_2;
 wire signed [WIDTH-1:0] o_sig;
 
 // registers

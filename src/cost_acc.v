@@ -10,11 +10,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module cost_acc(clk, rst, en, i_d1, i_d2, o);
+module cost_acc(clk, rst, en, i_d, o);
 
 // parameters
 parameter WIDTH = 32;
 parameter FRAC = 24;
+parameter N_OUT = 2;
 
 // common ports
 input clk;
@@ -24,39 +25,38 @@ input rst;
 input en;
 
 // input ports
-input signed [WIDTH-1:0] i_d1;
-input signed [WIDTH-1:0] i_d2;
+input signed [N_OUT*WIDTH-1:0] i_d;
 
 // output ports
 output signed [WIDTH-1:0] o;
 
+// register
+reg signed [WIDTH-1:0] reg_adder;
+
 // wires
-wire signed [WIDTH-1:0] o_mult_d1;
-wire signed [WIDTH-1:0] o_mult_d2;
+wire signed [N_OUT*WIDTH-1:0] o_mult;
 wire signed [WIDTH-1:0] o_add;
 wire signed [WIDTH-1:0] sr;
-wire signed [WIDTH-1:0] temp2;
-wire signed [WIDTH-1:0] temp1;
+wire signed [WIDTH-1:0] o_mux;
+wire signed [WIDTH-1:0] o_adder;
 
-// registers
-reg signed [WIDTH-1:0] o;
+mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult[N_OUT-1:0] (.i_a(i_d), .i_b(i_d), .o(o_mult));
 
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d1 (.i_a(i_d1), .i_b(i_d1), .o(o_mult_d1));
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult_d2 (.i_a(i_d2), .i_b(i_d2), .o(o_mult_d2));
+adder #(.NUM(N_OUT), .WIDTH(WIDTH)) add (.i(o_mult), .o(o_add));
 
-adder #(.NUM(2), .WIDTH(WIDTH)) add (.i({o_mult_d1, o_mult_d2}), .o(o_add));
 assign sr = (o_add) >> 1;
 
-adder #(.NUM(2), .WIDTH(WIDTH)) acc (.i({sr, temp1}), .o(temp2));
+multiplexer #(.WIDTH(WIDTH)) mux (.i_a(32'h0), .i_b(sr), .sel(en), .o(o_mux));
+
+assign o_adder = reg_adder + o_mux;
 
 always @(posedge clk or posedge rst) begin
-	if (rst) begin
-		o <= 32'd0;
-	end
+	if (rst)
+		reg_adder <= 32'd0;
 	else
-		o <= temp2;
+		reg_adder <= o_adder;
 end
 
-assign temp1 = en ? o : 32'd0;
+assign o = reg_adder;
 
 endmodule
