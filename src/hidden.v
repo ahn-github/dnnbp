@@ -25,8 +25,8 @@ input wr;
 
 // input ports
 input signed [NUM_INPUT*WIDTH-1:0] i_k;
-input signed [NUM_INPUT*WIDTH-1:0] i_w;
-input signed [WIDTH-1:0] i_b;
+input signed [NUM_PCTN*NUM_INPUT*WIDTH-1:0] i_w;
+input signed [NUM_PCTN*WIDTH-1:0] i_b;
 
 // output ports
 output signed [NUM_PCTN*WIDTH-1:0] o_a;
@@ -34,6 +34,13 @@ output signed [NUM_PCTN*NUM_INPUT*WIDTH-1:0] o_w;
 output signed [NUM_PCTN*WIDTH-1:0] o_b;
 
 // wires
+wire signed [NUM_INPUT*WIDTH-1:0] i_w1;
+wire signed [NUM_INPUT*WIDTH-1:0] i_w2;
+wire signed [NUM_INPUT*WIDTH-1:0] i_w3;
+wire signed [WIDTH-1:0] i_b1;
+wire signed [WIDTH-1:0] i_b2;
+wire signed [WIDTH-1:0] i_b3;
+
 wire signed [WIDTH-1:0] o_1;
 wire signed [WIDTH-1:0] o_2;
 wire signed [WIDTH-1:0] o_3;
@@ -56,6 +63,15 @@ wire signed [WIDTH-1:0] b_3;
 );
 */
 
+// parsing inputs
+assign i_w1 = i_w[1*NUM_INPUT*WIDTH-1:0*NUM_INPUT*WIDTH];
+assign i_w2 = i_w[2*NUM_INPUT*WIDTH-1:1*NUM_INPUT*WIDTH];
+assign i_w3 = i_w[3*NUM_INPUT*WIDTH-1:2*NUM_INPUT*WIDTH];
+assign i_b1 = i_b[1*WIDTH-1:0*WIDTH];
+assign i_b2 = i_b[2*WIDTH-1:1*WIDTH];
+assign i_b3 = i_b[3*WIDTH-1:2*WIDTH];
+
+
 perceptron #(
 		.NUM(NUM_INPUT),
 		.WIDTH(WIDTH),
@@ -65,8 +81,8 @@ perceptron #(
 		.rst (rst),
 		.wr  (wr),
 		.i_k (i_k),
-		.i_w (i_w),
-		.i_b (i_b),
+		.i_w (i_w1),
+		.i_b (i_b1),
 		.o_a (o_1),
 		.o_w (w_1),
 		.o_b (b_1)
@@ -81,8 +97,8 @@ perceptron #(
 		.rst (rst),
 		.wr  (wr),
 		.i_k (i_k),
-		.i_w (i_w),
-		.i_b (i_b),
+		.i_w (i_w2),
+		.i_b (i_b2),
 		.o_a (o_2),
 		.o_w (w_2),
 		.o_b (b_2)
@@ -97,8 +113,8 @@ perceptron #(
 		.rst (rst),
 		.wr  (wr),
 		.i_k (i_k),
-		.i_w (i_w),
-		.i_b (i_b),
+		.i_w (i_w3),
+		.i_b (i_b3),
 		.o_a (o_3),
 		.o_w (w_3),
 		.o_b (b_3)

@@ -92,7 +92,7 @@ bias_acc #(.WIDTH(WIDTH)) calc_bias_o_1  (
         .clk(clk),
         .rst(rst),
         .en(en),
-        .i_d(i_dlto[WIDTH-1:0]),
+        .i_d(i_dlto_1),
         .i_lr(i_lr),
         .o(o_bias_out_1)
     );
@@ -101,7 +101,7 @@ bias_acc #(.WIDTH(WIDTH)) calc_bias_o_2  (
         .clk(clk),
         .rst(rst),
         .en(en),
-        .i_d(i_dlto[2*WIDTH-1:WIDTH]),
+        .i_d(i_dlto_2),
         .i_lr(i_lr),
         .o(o_bias_out_2)
     );
@@ -110,7 +110,7 @@ bias_acc #(.WIDTH(WIDTH)) calc_bias_hd_1 (
         .clk(clk),
         .rst(rst),
         .en(en),
-        .i_d(i_dlth[WIDTH-1:0]),
+        .i_d(i_dlth_1),
         .i_lr(i_lr),
         .o(o_bias_hd_1)
     );
@@ -119,7 +119,7 @@ bias_acc #(.WIDTH(WIDTH)) calc_bias_hd_2 (
         .clk(clk),
         .rst(rst),
         .en(en),
-        .i_d(i_dlth[2*WIDTH-1:WIDTH]),
+        .i_d(i_dlth_2),
         .i_lr(i_lr),
         .o(o_bias_hd_2)
     );
@@ -128,7 +128,7 @@ bias_acc #(.WIDTH(WIDTH)) calc_bias_hd_3 (
         .clk(clk),
         .rst(rst),
         .en(en),
-        .i_d(i_dlth[3*WIDTH-1:2*WIDTH]),
+        .i_d(i_dlth_3),
         .i_lr(i_lr),
         .o(o_bias_hd_3)
     );

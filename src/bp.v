@@ -10,7 +10,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module bp(clk, rst, accu, i_hd_a, i_out_w, i_out_a, i_t, i_lr, i_k, o_cost, o_bias_o, o_bias_hd, o_wght_o, o_wght_hd);
+module bp(clk, rst, accu, rst_btch, i_hd_a, i_out_w, i_out_a, i_t, i_lr, i_k, o_cost, o_bias_o, o_bias_hd, o_wght_o, o_wght_hd);
 
 // parameters
 parameter N_IN = 2;
@@ -24,10 +24,11 @@ input clk, rst;
 
 // control ports
 input accu;
+input rst_btch;
 
 // input ports
 input signed [N_HL_P*WIDTH-1:0] i_hd_a;
-input signed [N_HL_P*N_IN*WIDTH-1:0] i_out_w;
+input signed [N_HL_P*N_OUT*WIDTH-1:0] i_out_w;
 input signed [N_OUT*WIDTH-1:0] i_out_a;
 input signed [N_OUT*WIDTH-1:0] i_t;
 
@@ -69,7 +70,7 @@ cost_acc #(
 		.N_OUT(N_OUT)
 	) cost_calc (
 		.clk (clk),
-		.rst (rst),
+		.rst (rst_btch),
 		.en  (accu),
 		.i_d (o_cost_dlt),
 		.o   (o_cost)
@@ -82,7 +83,7 @@ weight_bias_calc #(
 		.WIDTH(WIDTH)
 	) wb_calc (
 		.clk       (clk),
-		.rst       (rst),
+		.rst       (rst_btch),
 		.en        (accu),
 		.i_lr      (i_lr),
 		.i_k       (i_k),

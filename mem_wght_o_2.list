@@ -1,1 +1,4 @@
-11111111000000000000000000000000_00000001000110011001100110011001_00000000_100000000000000000000000_00000000001100110011001100110010
+// memory data file (do not edit the following line - required for mem load use)
+// instance=/array_tb/inst_array/o_layr/perceptron_2/wght_mem(0)
+// format=hex addressradix=h dataradix=h version=1.0 wordsperline=1 noaddress
+019dfca101e1b73e01283acbf7d228ea

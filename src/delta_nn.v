@@ -36,10 +36,10 @@ wire signed [WIDTH-1:0] i_hd_a3;
 // i_out_wX_Y: X = hidden perceptron, Y = output perceptron
 wire signed [WIDTH-1:0] i_out_w1_1;
 wire signed [WIDTH-1:0] i_out_w1_2;
+wire signed [WIDTH-1:0] i_out_w1_3;
 wire signed [WIDTH-1:0] i_out_w2_1;
 wire signed [WIDTH-1:0] i_out_w2_2;
-wire signed [WIDTH-1:0] i_out_w3_1;
-wire signed [WIDTH-1:0] i_out_w3_2;
+wire signed [WIDTH-1:0] i_out_w2_3;
 wire signed [WIDTH-1:0] i_out_a1;
 wire signed [WIDTH-1:0] i_out_a2;
 wire signed [WIDTH-1:0] i_t1;
@@ -59,10 +59,10 @@ assign i_hd_a3 = i_hd_a[3*WIDTH-1 : 2*WIDTH];
 
 assign i_out_w1_1 = i_out_w[1*WIDTH-1 : 0];
 assign i_out_w1_2 = i_out_w[2*WIDTH-1 : 1*WIDTH];
-assign i_out_w2_1 = i_out_w[3*WIDTH-1 : 2*WIDTH];
-assign i_out_w2_2 = i_out_w[4*WIDTH-1 : 3*WIDTH];
-assign i_out_w3_1 = i_out_w[5*WIDTH-1 : 4*WIDTH];
-assign i_out_w3_2 = i_out_w[6*WIDTH-1 : 5*WIDTH];
+assign i_out_w1_3 = i_out_w[3*WIDTH-1 : 2*WIDTH];
+assign i_out_w2_1 = i_out_w[4*WIDTH-1 : 3*WIDTH];
+assign i_out_w2_2 = i_out_w[5*WIDTH-1 : 4*WIDTH];
+assign i_out_w2_3 = i_out_w[6*WIDTH-1 : 5*WIDTH];
 
 assign i_out_a1 = i_out_a[1*WIDTH-1 : 0];
 assign i_out_a2 = i_out_a[2*WIDTH-1 : 1*WIDTH];
@@ -75,9 +75,9 @@ delta_out #(.WIDTH(WIDTH), .FRAC(FRAC)) dlto_1 (.i_a(i_out_a1), .i_t(i_t1), .o_d
 delta_out #(.WIDTH(WIDTH), .FRAC(FRAC)) dlto_2 (.i_a(i_out_a2), .i_t(i_t2), .o_delta(o_dlto_2), .o_cost(o_cost_2));
 
 // Calculate Hidden Layer's Delta
-delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_1 (.i_a(i_hd_a1), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w1_2, i_out_w1_1}), .o(o_dlth_1));
-delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_2 (.i_a(i_hd_a2), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w2_2, i_out_w2_1}), .o(o_dlth_2));
-delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_3 (.i_a(i_hd_a3), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w3_2, i_out_w3_1}), .o(o_dlth_3));
+delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_1 (.i_a(i_hd_a1), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w2_1, i_out_w1_1}), .o(o_dlth_1));
+delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_2 (.i_a(i_hd_a2), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w2_2, i_out_w1_2}), .o(o_dlth_2));
+delta_h #(.NUM(N_IN), .WIDTH(WIDTH)) dlth_3 (.i_a(i_hd_a3), .i_prevd({o_dlto_2, o_dlto_1}), .i_w({i_out_w2_3, i_out_w1_3}), .o(o_dlth_3));
 
 // Combining Outputs
 assign o_cost = {o_cost_2, o_cost_1};

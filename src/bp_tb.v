@@ -21,6 +21,7 @@ parameter FRAC = 24;
 // register
 reg clk, rst;
 reg accu;
+reg cost_rst;
 reg signed [WIDTH-1:0] i_lr;
 reg signed [N_HL_P*N_IN*WIDTH-1:0] i_out_w;
 reg signed [N_HL_P*WIDTH-1:0] i_hd_a;
@@ -45,6 +46,7 @@ bp #(
 		.clk       (clk),
 		.rst       (rst),
 		.accu      (accu),
+		.cost_rst  (cost_rst),
 		.i_hd_a    (i_hd_a),
 		.i_out_w   (i_out_w),
 		.i_out_a   (i_out_a),
@@ -64,6 +66,7 @@ begin
 	rst = 1;
 	accu = 0;
 	i_lr = 32'h0019999a;
+	cost_rst <= 1;
 	i_out_w <= 192'h01199999_014ccccc_00800000_00333332_00333332_00b33333;
 
 	// i_out_a <= o2hd3, o1hd3, o2hd2, o1hd2, o2hd1, o1hd1
@@ -75,7 +78,8 @@ begin
 	i_k = 64'h08000000_08000000;
 	i_t <= 64'h01000000_00000000;
 	#100;
-	rst = 0;
+	rst <= 0;
+	cost_rst <= 0;
 	#300;
 	$display("%x, %x, %x, %x, %x\n", o_cost, o_bias_o, o_bias_hd, o_wght_o, o_wght_hd);
 	#100;
@@ -110,15 +114,15 @@ end
 
 always
 begin
-	#50;
-	clk <= !clk;
+	#50
+	clk = !clk;
 end
 
 always
 begin
-	#100;
+	#100
 	accu <= !accu;
-	#100;
+	#100
 	accu <= !accu;
 	#200;
 end
