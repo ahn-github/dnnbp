@@ -11,7 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module act_tanh (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
+module act_tanh (clk, rst, wr, i_x, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
 parameter NUM = 2;
@@ -25,7 +25,7 @@ input clk, rst;
 input wr;
 
 // input ports
-input signed [NUM*WIDTH-1:0] i_k;
+input signed [NUM*WIDTH-1:0] i_x;
 input signed [NUM*WIDTH-1:0] i_w;
 input signed [WIDTH-1:0] i_b;
 
@@ -64,7 +64,7 @@ assign wght = wght_mem[0][NUM*WIDTH-1:0];
 assign bias = wght_mem[0][(NUM+1)*WIDTH-1:NUM*WIDTH];
 
 // Generate N multiplier, o_mul is an array of multiplier outputs, WIDTH bits each
-mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
+mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_x), .i_b(wght), .o(o_mul));
 
 // Adding all multiplier output & bias
 adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({bias, o_mul}), .o(o_add));
