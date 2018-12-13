@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // By : Joshua, Teresia Savera, Yashael Faith
@@ -73,4 +72,8 @@ end
 assign o_ctrl = reg_ctrl;
 assign o_mid  = reg_mid;
 
+<<<<<<< HEAD
 endmodule
+=======
+endmodule
+>>>>>>> d945212412718ae35396e81363963c66218e7401
