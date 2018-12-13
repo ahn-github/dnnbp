@@ -11,11 +11,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module lstm_cell (clk, rst, sel, i_x, o_w_a, o_b_a, o_w_i, o_b_i, o_w_f, o_b_f, o_w_o, o_b_o, o_c, o_h,);
+module lstm_cell (clk, rst, sel, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
+i_b_a, i_b_i,  i_b_f, i_b_o,
+o_w_a, o_w_i,  o_w_f, o_w_o, 
+o_b_a, o_b_i, o_b_f, o_b_o, 
+o_a, o_i, o_f, o_o, o_c, o_h);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 2;
+parameter NUM = 3;
 
 // common ports
 input clk, rst;
@@ -24,115 +28,150 @@ input clk, rst;
 input sel;
 
 // input ports
-input signed [(NUM+1)*WIDTH-1:0] i_x;
+input signed [NUM*WIDTH-1:0] i_x;
+
+// input ports for backpropagation
+input signed [NUM*WIDTH-1:0] i_w_a;
+input signed [NUM*WIDTH-1:0] i_w_i;
+input signed [NUM*WIDTH-1:0] i_w_f;
+input signed [NUM*WIDTH-1:0] i_w_o;
+input signed [WIDTH-1:0] i_b_a;
+input signed [WIDTH-1:0] i_b_i;
+input signed [WIDTH-1:0] i_b_f;
+input signed [WIDTH-1:0] i_b_o;
+
 
 // output ports
 output signed [NUM*WIDTH-1:0] o_w_a;
-output signed [WIDTH-1:0] o_b_a;
 output signed [NUM*WIDTH-1:0] o_w_i;
-output signed [WIDTH-1:0] o_b_i;
 output signed [NUM*WIDTH-1:0] o_w_f;
-output signed [WIDTH-1:0] o_b_f;
 output signed [NUM*WIDTH-1:0] o_w_o;
+output signed [WIDTH-1:0] o_b_a;
+output signed [WIDTH-1:0] o_b_i;
+output signed [WIDTH-1:0] o_b_f;
 output signed [WIDTH-1:0] o_b_o;
 output signed [WIDTH-1:0] o_c;
 output signed [WIDTH-1:0] o_h;
+output signed [WIDTH-1:0] o_a;
+output signed [WIDTH-1:0] o_i;
+output signed [WIDTH-1:0] o_f;
+output signed [WIDTH-1:0] o_o;
 
 // registers
 reg signed [WIDTH-1:0] reg_c;
 
-// wires
-wire signed [WIDTH-1:0] a;
-wire signed [WIDTH-1:0] i;
-wire signed [WIDTH-1:0] f;
-wire signed [WIDTH-1:0] o;
+wire signed [WIDTH-1:0] temp_a;
+wire signed [WIDTH-1:0] temp_i;
+wire signed [WIDTH-1:0] temp_f;
+wire signed [WIDTH-1:0] temp_o;
+
 wire signed [WIDTH-1:0] mul_ai;
 wire signed [WIDTH-1:0] mul_fc;
 wire signed [WIDTH-1:0] state_t;
-wire signed [WIDTH-1:0] out_reg;
+wire signed [WIDTH-1:0] out_multiplexer;
+wire signed [WIDTH-1:0] tanh_state_t;
+
 
 
 act_tanh #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
-			.FILE_NAME(FILE_NAME)
-		) inst_tanh (
+			.FILE_NAME("mem_wghta.list")
+		) inst_act_tanh (
 			.clk (clk),
 			.rst (rst),
-			.i_x (i_x),
-			.o_a (i),
+			.wr  (wr),
+			.i_k (i_x),
+			.i_w(i_w_a),
+			.i_b(i_b_a),
+			.o_a (temp_a),
 			.o_w (o_w_a),
 			.o_b (o_b_a)
 		);
 
 
-act_sigmf #(
+act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
-			.FILE_NAME(FILE_NAME)
+			.FILE_NAME("mem_wghti.list")
 		) inst_perceptron_i (
 			.clk (clk),
 			.rst (rst),
-			.i_x (i_x),
-			.o_a (i),
+			.wr(wr),
+			.i_k (i_x),
+			.i_w(i_w_i),
+			.i_b(i_b_i),
+			.o_a (temp_i),
 			.o_w (o_w_i),
 			.o_b (o_b_i)
 		);
 
-act_sigmf #(
+act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
-			.FILE_NAME(FILE_NAME)
+			.FILE_NAME("mem_wghtf.list")
 		) inst_perceptron_f (
 			.clk (clk),
 			.rst (rst),
-			.i_x (i_x),
-			.o_a (f),
+			.wr(wr),
+			.i_k (i_x),
+			.i_w(i_w_f),
+			.i_b(i_b_f),
+			.o_a (temp_f),
 			.o_w (o_w_f),
 			.o_b (o_b_f)
 		);
 
-act_sigmf #(
+act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
-			.FILE_NAME(FILE_NAME)
+			.FILE_NAME("mem_wghto.list")
 		) inst_perceptron_o (
 			.clk (clk),
 			.rst (rst),
-			.i_x (i_x),
-			.o_a (o),
+			.wr(wr),
+			.i_k (i_x),
+			.i_w(i_w_o),
+			.i_b(i_b_o),
+			.o_a (temp_o),
 			.o_w (o_w_o),
 			.o_b (o_b_o)
 		);
 
 // a(t) * i(t)
 
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) inst_mult_2in (.i_a(a), .i_b(i), .o(mul_ai));
+mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst_mult_2in (.i_a(temp_a), .i_b(temp_i), .o(mul_ai));
 
 // f(t) * c(t-1)
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) inst2_mult_2in (.i_a(f), .i_b(regc), .o(mul_fc));
+mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst2_mult_2in (.i_a(temp_f), .i_b(out_multiplexer), .o(mul_fc));
 
 // o_h = tanh(state(t)  * o
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) inst3_mult_2in (.i_a(tanh_state_t), .i_b(o), .o(o_h));
+mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst3_mult_2in (.i_a(tanh_state_t), .i_b(temp_o), .o(o_h));
 
 //state_t = a(t) * i(t) + f(t) * c(t-1)
 adder_2in #(.WIDTH(WIDTH)) inst_adder_2in (.i_a(mul_ai), .i_b(mul_fc), .o(state_t));
 
-multiplexer #(.WIDTH(WIDTH)) inst_multiplexer (.i_a(32'b0), .i_b(mul_fc), .sel(sel), .o(out_reg));
+multiplexer #(.WIDTH(WIDTH)) inst_multiplexer (.i_a(32'b0), .i_b(reg_c), .sel(sel), .o(out_multiplexer));
 
-tanh #(.WIDTH(WIDTH), .ONE(ONE)) inst_tanh (.i(state_t), .o(tanh_state_t));
+tanh #(.WIDTH(WIDTH)) inst_tanh (.i(state_t), .o(tanh_state_t));
 
 
-always @(posedge clk or posedge rst)
+always @(posedge clk or rst)
 begin
 	if (rst)
+	begin
 		reg_c<=0;
-	else 
-		reg_c<= out_reg;
-
+  	end
+	else
+  	begin 
+		reg_c<= state_t;
 	end
 end
 
 assign o_c = state_t;
+assign o_a = temp_a;
+assign o_i = temp_i;
+assign o_f = temp_f;
+assign o_o = temp_o;
 
 endmodule

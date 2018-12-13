@@ -14,7 +14,7 @@
 module act_tanh (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
-parameter NUM = 2;
+parameter NUM = 3;
 parameter WIDTH = 32;
 parameter FILE_NAME = "mem_wght.list";
 
@@ -54,14 +54,15 @@ begin
 	else if (wr)
 	begin
 		// To add new value to RAM
-		wght_mem[0] <= {i_b, i_w};
+		wght_mem[0] <= {i_w, i_b};
 		$writememh(FILE_NAME, wght_mem);
 	end
 end
 
 // To read value from RAM
-assign wght = wght_mem[0][NUM*WIDTH-1:0];
-assign bias = wght_mem[0][(NUM+1)*WIDTH-1:NUM*WIDTH];
+assign bias = wght_mem[0][WIDTH-1:0];
+assign wght = wght_mem[0][(NUM+1)*WIDTH-1:WIDTH];
+
 
 // Generate N multiplier, o_mul is an array of multiplier outputs, WIDTH bits each
 mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
@@ -70,7 +71,7 @@ mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
 adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({bias, o_mul}), .o(o_add));
 
 // Using sigmoid function for the Activation value
-tanh tanh (.i(o_add), .o(o_a));
+tanh inst_tanh (.i(o_add), .o(o_a));
 
 // Tap the weight value to output port
 assign o_w = wght;
