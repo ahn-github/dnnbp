@@ -77,3 +77,5 @@ tanh inst_tanh (.i(o_add), .o(o_a));
 // Tap the weight value to output port
 assign o_w = wght;
 assign o_b = bias;
+
+endmodule
