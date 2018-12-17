@@ -6,4 +6,5 @@
 *.bak
 *.ini
 output.txt
-.DS_Store
+**/.DS_Store
+**/wlf*
