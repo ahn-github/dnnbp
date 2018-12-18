@@ -17,12 +17,12 @@ parameter NUM = 68;  // number of feature + 1
 parameter NUM_ITERATIONS = 8;
 
 input [WIDTH-1:0] addr;
-output signed [WIDTH*NUM-1:0] data;
+output signed [WIDTH-1:0] data;
 
-reg signed [WIDTH*NUM-1:0] input_memory [0:NUM_ITERATIONS-1];
+reg signed [WIDTH-1:0] input_memory [0:NUM*NUM_ITERATIONS-1];
 
 initial begin
-$readmemh("mem_x.list", input_memory);
+$readmemh("mem_x.txt", input_memory);
 end
 
 assign data = input_memory[addr];
