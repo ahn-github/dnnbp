@@ -15,7 +15,7 @@ i_b_a, i_b_i,  i_b_f, i_b_o);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 69;
+parameter NUM = 35;
 parameter NUM_LSTM = 1;
 parameter NUM_ITERATIONS = 8;
 parameter FILENAMEA="mem_wghta.list";
@@ -100,7 +100,7 @@ addr_x #(
 	);
 
 shift_reg #(
-		.NUM_ITERATIONS(68),
+		.NUM_ITERATIONS(NUM-1),
 		.WIDTH(WIDTH)
 	) inst_shift_reg (
 		.clk (clk),
