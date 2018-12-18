@@ -171,10 +171,4 @@ generate
     end
 endgenerate
 
-
-
-
-/////////////////////
-// Combining Outputs
-
 endmodule
