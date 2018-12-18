@@ -323,3 +323,103 @@
 # End of Stack Trace
 
 
+# Current time Tue Dec 18 20:14:53 2018
+# ModelSim PE Student Edition Stack Trace
+# Program = vsim
+# Id = "10.4a"
+# Version = "2015.03"
+# Date = "Apr  7 2015"
+# Platform = win32pe
+# Signature = ac8c563de6ee885313f1754f0d1a83f5
+# 0    0x010dc012: '<unknown (@0x10dc012)>'
+# 1    0x010dc610: '<unknown (@0x10dc610)>'
+# 2    0x010dc654: '<unknown (@0x10dc654)>'
+# 3    0x009c05ae: '<unknown (@0x9c05ae)>'
+# 4    0x009c1990: '<unknown (@0x9c1990)>'
+# 5    0x009c8777: '<unknown (@0x9c8777)>'
+# 6    0x009c880d: '<unknown (@0x9c880d)>'
+# 7    0x009c94b4: '<unknown (@0x9c94b4)>'
+# 8    0x1000cb1f: 'TclInvokeStringCommand + 0x8f' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 9    0x1000ecba: 'Tcl_EvalEx + 0x7da' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 10   0x1000e500: 'Tcl_EvalEx + 0x20' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 11   0x00f83f74: '<unknown (@0xf83f74)>'
+# 12   0x1005fb86: 'Tcl_NotifyChannel + 0x136' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 13   0x100aab09: 'TclpHasSockets + 0x379' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# End of Stack Trace
+
+
+# Current time Tue Dec 18 20:23:16 2018
+# ModelSim PE Student Edition Stack Trace
+# Program = vsim
+# Id = "10.4a"
+# Version = "2015.03"
+# Date = "Apr  7 2015"
+# Platform = win32pe
+# Signature = ac8c563de6ee885313f1754f0d1a83f5
+# 0    0x010dc012: '<unknown (@0x10dc012)>'
+# 1    0x010dc610: '<unknown (@0x10dc610)>'
+# 2    0x010dc654: '<unknown (@0x10dc654)>'
+# 3    0x009c05ae: '<unknown (@0x9c05ae)>'
+# 4    0x009c1990: '<unknown (@0x9c1990)>'
+# 5    0x009c8777: '<unknown (@0x9c8777)>'
+# 6    0x009c880d: '<unknown (@0x9c880d)>'
+# 7    0x009c94b4: '<unknown (@0x9c94b4)>'
+# 8    0x1000cb1f: 'TclInvokeStringCommand + 0x8f' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 9    0x1000ecba: 'Tcl_EvalEx + 0x7da' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 10   0x1000e500: 'Tcl_EvalEx + 0x20' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 11   0x00f83f74: '<unknown (@0xf83f74)>'
+# 12   0x1005fb86: 'Tcl_NotifyChannel + 0x136' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 13   0x100aab09: 'TclpHasSockets + 0x379' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# End of Stack Trace
+
+
+# Current time Tue Dec 18 20:48:40 2018
+# ModelSim PE Student Edition Stack Trace
+# Program = vsim
+# Id = "10.4a"
+# Version = "2015.03"
+# Date = "Apr  7 2015"
+# Platform = win32pe
+# Signature = ac8c563de6ee885313f1754f0d1a83f5
+# 0    0x010dc012: '<unknown (@0x10dc012)>'
+# 1    0x010dc610: '<unknown (@0x10dc610)>'
+# 2    0x010dc654: '<unknown (@0x10dc654)>'
+# 3    0x009c05ae: '<unknown (@0x9c05ae)>'
+# 4    0x009c1990: '<unknown (@0x9c1990)>'
+# 5    0x009c8777: '<unknown (@0x9c8777)>'
+# 6    0x009c880d: '<unknown (@0x9c880d)>'
+# 7    0x009c94b4: '<unknown (@0x9c94b4)>'
+# 8    0x1000cb1f: 'TclInvokeStringCommand + 0x8f' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 9    0x1000ecba: 'Tcl_EvalEx + 0x7da' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 10   0x1000e500: 'Tcl_EvalEx + 0x20' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 11   0x00f83f74: '<unknown (@0xf83f74)>'
+# 12   0x1005fb86: 'Tcl_NotifyChannel + 0x136' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 13   0x100aab09: 'TclpHasSockets + 0x379' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# End of Stack Trace
+
+
+# Current time Tue Dec 18 20:52:29 2018
+# ModelSim PE Student Edition Stack Trace
+# Program = vsim
+# Id = "10.4a"
+# Version = "2015.03"
+# Date = "Apr  7 2015"
+# Platform = win32pe
+# Signature = ac8c563de6ee885313f1754f0d1a83f5
+# 0    0x010dc012: '<unknown (@0x10dc012)>'
+# 1    0x010dc610: '<unknown (@0x10dc610)>'
+# 2    0x010dc654: '<unknown (@0x10dc654)>'
+# 3    0x009c05ae: '<unknown (@0x9c05ae)>'
+# 4    0x009c1990: '<unknown (@0x9c1990)>'
+# 5    0x009c8777: '<unknown (@0x9c8777)>'
+# 6    0x009c880d: '<unknown (@0x9c880d)>'
+# 7    0x009c94b4: '<unknown (@0x9c94b4)>'
+# 8    0x1000cb1f: 'TclInvokeStringCommand + 0x8f' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 9    0x1000ecba: 'Tcl_EvalEx + 0x7da' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 10   0x1000e500: 'Tcl_EvalEx + 0x20' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 11   0x00f83f74: '<unknown (@0xf83f74)>'
+# 12   0x1005fb86: 'Tcl_NotifyChannel + 0x136' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# 13   0x100aab09: 'TclpHasSockets + 0x379' in 'c:\modeltech_pe_edu_10.4a\win32pe_edu\tcl85.dll'
+# End of Stack Trace
+
+

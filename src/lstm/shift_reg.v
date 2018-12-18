@@ -12,7 +12,7 @@
 
 module shift_reg (clk, rst, i, o);
 
-parameter NUM_ITERATIONS = 8;
+parameter NUM_ITERATIONS = 68;
 parameter WIDTH = 32;
 
 // common ports

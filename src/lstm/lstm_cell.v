@@ -19,7 +19,7 @@ o_a, o_i, o_f, o_o, o_c, o_h);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 3;
+parameter NUM = 69;
 parameter FILENAMEA="mem_wghta.list";
 parameter FILENAMEI="mem_wghti.list";
 parameter FILENAMEF="mem_wghtf.list";

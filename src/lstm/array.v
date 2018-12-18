@@ -11,12 +11,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 module array (clk, rst, sel, i_w_a, i_w_i, i_w_f, i_w_o,  
-i_b_a, i_b_i,  i_b_f, i_b_o);
+i_b_a, i_b_i,  i_b_f, i_b_o, o_h);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 35;
-parameter NUM_LSTM = 1;
+parameter NUM = 69;
+parameter NUM_LSTM = 8;
 parameter NUM_ITERATIONS = 8;
 parameter FILENAMEA="mem_wghta.list";
 parameter FILENAMEI="mem_wghti.list";
@@ -37,19 +37,15 @@ input signed [WIDTH-1:0] i_b_i;
 input signed [WIDTH-1:0] i_b_f;
 input signed [WIDTH-1:0] i_b_o;
 
+// output ports
+output signed [NUM_LSTM*WIDTH-1:0] o_h;
+
+
+
 // wires
 wire signed [WIDTH-1:0] addrinput;
 wire signed [WIDTH-1:0] x_t;
 wire signed [(NUM-1)*WIDTH-1:0] input_lstm;
-
-// tapping signal only
-wire signed [NUM_LSTM*WIDTH-1:0] o_c;
-wire signed [NUM_LSTM*WIDTH-1:0] o_h;
-wire signed [NUM_LSTM*WIDTH-1:0] o_a;
-wire signed [NUM_LSTM*WIDTH-1:0] o_i;
-wire signed [NUM_LSTM*WIDTH-1:0] o_f;
-wire signed [NUM_LSTM*WIDTH-1:0] o_o;
-
 
 lstm #(
 		.WIDTH(WIDTH),
@@ -63,7 +59,7 @@ lstm #(
 		.clk   (clk),
 		.rst   (rst),
 		.sel   (sel),
-		.i_x   (input_lstm),
+		.i_x   (i_x),
 		.i_w_a (i_w_a),
 		.i_w_i (i_w_i),
 		.i_w_f (i_w_f),
@@ -72,13 +68,9 @@ lstm #(
 		.i_b_i (i_b_i),
 		.i_b_f (i_b_f),
 		.i_b_o (i_b_o),
-		.o_a   (o_a),
-		.o_i   (o_i),
-		.o_f   (o_f),
-		.o_o   (o_o),
-		.o_c   (o_c),
 		.o_h   (o_h)
-);
+	);
+
 
 mem_input_x #(
 		.WIDTH(WIDTH),
