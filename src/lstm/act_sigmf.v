@@ -14,8 +14,9 @@
 module act_sigmoid (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
-parameter NUM = 3;
+parameter NUM = 68;
 parameter WIDTH = 32;
+parameter NUM_LSTM = 8;
 parameter FILE_NAME = "mem_wght.list";
 
 // common ports
@@ -25,23 +26,23 @@ input clk, rst;
 input wr;
 
 // input ports
-input signed [NUM*WIDTH-1:0] i_k;
-input signed [NUM*WIDTH-1:0] i_w;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_k;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w;
 input signed [WIDTH-1:0] i_b;
 
 // output ports
 output signed [WIDTH-1:0] o_a;
-output signed [NUM*WIDTH-1:0] o_w;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w;
 output signed [WIDTH-1:0] o_b;
 
 // wires
-wire signed [NUM*WIDTH-1:0] o_mul;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_mul;
 wire signed [WIDTH-1:0] o_add;
-wire signed [NUM*WIDTH-1:0] wght;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wght;
 wire signed [WIDTH-1:0] bias;
 
 // registers
-reg signed [(NUM+1)*WIDTH-1:0] wght_mem [0:0];
+reg signed [(NUM+NUM_LSTM+1)*WIDTH-1:0] wght_mem [0:0];
 
 
 always @(posedge clk or posedge rst)
@@ -61,13 +62,13 @@ end
 
 // To read value from RAM
 assign bias = wght_mem[0][WIDTH-1:0];
-assign wght = wght_mem[0][(NUM+1)*WIDTH-1:WIDTH];
+assign wght = wght_mem[0][(NUM+NUM_LSTM+1)*WIDTH-1:WIDTH];
 
 // Generate N multiplier, o_mul is an array of multiplier outputs, WIDTH bits each
-mult_2in #(.WIDTH(WIDTH)) mult[NUM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
+mult_2in #(.WIDTH(WIDTH)) mult[NUM+NUM_LSTM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));
 
 // Adding all multiplier output & bias
-adder #(.NUM(NUM+1), .WIDTH(WIDTH)) add (.i({bias, o_mul}), .o(o_add));
+adder #(.NUM((NUM+NUM_LSTM)+1), .WIDTH(WIDTH)) add (.i({bias, o_mul}), .o(o_add));
 
 // Using sigmoid function for the Activation value
 sigmf sigmoid (.i(o_add), .o(o_a));

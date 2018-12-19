@@ -10,12 +10,12 @@
 //					  
 ///////////////////////////////////////////////////////////////////////////////
 
-module array (clk, rst, sel, i_w_a, i_w_i, i_w_f, i_w_o,  
+module array (clk, rst, sel, load, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o, o_h);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 69;
+parameter NUM = 68;
 parameter NUM_LSTM = 8;
 parameter NUM_ITERATIONS = 8;
 parameter FILENAMEA="mem_wghta.list";
@@ -24,14 +24,14 @@ parameter FILENAMEF="mem_wghtf.list";
 parameter FILENAMEO="mem_wghto.list";
 
 // control ports
-input clk, rst, sel;
+input clk, rst, sel, load;
 
 
 // input ports for backpropagation
-input signed [NUM*WIDTH-1:0] i_w_a;
-input signed [NUM*WIDTH-1:0] i_w_i;
-input signed [NUM*WIDTH-1:0] i_w_f;
-input signed [NUM*WIDTH-1:0] i_w_o;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_i;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_f;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_o;
 input signed [WIDTH-1:0] i_b_a;
 input signed [WIDTH-1:0] i_b_i;
 input signed [WIDTH-1:0] i_b_f;
@@ -45,21 +45,18 @@ output signed [NUM_LSTM*WIDTH-1:0] o_h;
 // wires
 wire signed [WIDTH-1:0] addrinput;
 wire signed [WIDTH-1:0] x_t;
-wire signed [(NUM-1)*WIDTH-1:0] input_lstm;
+wire signed [NUM*WIDTH-1:0] temp_input_lstm;
+wire signed [NUM*WIDTH-1:0] input_lstm;
 
 lstm #(
 		.WIDTH(WIDTH),
 		.NUM(NUM),
-		.NUM_LSTM(NUM_LSTM),
-		.FILENAMEA(FILENAMEA),
-		.FILENAMEI(FILENAMEI),
-		.FILENAMEF(FILENAMEF),
-		.FILENAMEO(FILENAMEO)
+		.NUM_LSTM(NUM_LSTM)
 	) inst_lstm (
 		.clk   (clk),
 		.rst   (rst),
 		.sel   (sel),
-		.i_x   (i_x),
+		.i_x   (input_lstm),
 		.i_w_a (i_w_a),
 		.i_w_i (i_w_i),
 		.i_w_f (i_w_f),
@@ -92,16 +89,16 @@ addr_x #(
 	);
 
 shift_reg #(
-		.NUM_ITERATIONS(NUM-1),
+		.NUM_ITERATIONS(NUM),
 		.WIDTH(WIDTH)
 	) inst_shift_reg (
 		.clk (clk),
 		.rst (rst),
 		.i   (x_t),
-		.o   (input_lstm)
+		.o   (temp_input_lstm)
 	);
 
-
+sto_reg #(.WIDTH(WIDTH), .NUM(NUM)) inst_sto_reg (.clk(clk), .rst(rst), .load(load), .i(temp_input_lstm), .o(input_lstm));
 
 
 endmodule

@@ -19,8 +19,8 @@ o_a, o_i, o_f, o_o, o_c, o_h);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 3;
-parameter NUM_LSTM = 5;
+parameter NUM = 68;
+parameter NUM_LSTM = 8;
 parameter FILENAMEA="mem_wghta.list";
 parameter FILENAMEI="mem_wghti.list";
 parameter FILENAMEF="mem_wghtf.list";
@@ -33,13 +33,13 @@ input clk, rst;
 input sel;
 
 // input ports
-input signed [(NUM-1)*WIDTH-1:0] i_x;
+input signed [NUM*WIDTH-1:0] i_x;
 
 // input ports for backpropagation
-input signed [NUM*WIDTH-1:0] i_w_a;
-input signed [NUM*WIDTH-1:0] i_w_i;
-input signed [NUM*WIDTH-1:0] i_w_f;
-input signed [NUM*WIDTH-1:0] i_w_o;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_i;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_f;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_o;
 input signed [WIDTH-1:0] i_b_a;
 input signed [WIDTH-1:0] i_b_i;
 input signed [WIDTH-1:0] i_b_f;
@@ -47,10 +47,10 @@ input signed [WIDTH-1:0] i_b_o;
 
 
 // output ports
-output signed [NUM*WIDTH-1:0] o_w_a;
-output signed [NUM*WIDTH-1:0] o_w_i;
-output signed [NUM*WIDTH-1:0] o_w_f;
-output signed [NUM*WIDTH-1:0] o_w_o;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_a;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_i;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_f;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_o;
 output signed [WIDTH-1:0] o_b_a;
 output signed [WIDTH-1:0] o_b_i;
 output signed [WIDTH-1:0] o_b_f;
@@ -62,6 +62,13 @@ output signed [NUM_LSTM*WIDTH-1:0] o_a;
 output signed [NUM_LSTM*WIDTH-1:0] o_i;
 output signed [NUM_LSTM*WIDTH-1:0] o_f;
 output signed [NUM_LSTM*WIDTH-1:0] o_o;
+
+wire signed [NUM_LSTM*WIDTH-1:0] o_h_prev;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] concatenated_input;
+wire signed [NUM_LSTM*WIDTH-1:0] out_multiplexer;
+wire signed [NUM_LSTM*WIDTH-1:0] null_num = {NUM_LSTM*WIDTH{1'b0}};
+
+assign concatenated_input = {out_multiplexer, i_x};
 
 generate
     genvar i;
@@ -80,16 +87,17 @@ generate
 		lstm_cell #(
 				.WIDTH(WIDTH),
 				.NUM(NUM),
-				.FILENAMEA("mem_weighta00" + (256 * (i / 10)) + (i % 10)),
-				.FILENAMEI("mem_weighti00" + (256 * (i / 10)) + (i % 10)),
-				.FILENAMEF("mem_weightf00" + (256 * (i / 10)) + (i % 10)),
-				.FILENAMEO("mem_weighto00" + (256 * (i / 10)) + (i % 10))
+				.NUM_LSTM(NUM_LSTM),
+				.FILENAMEA("mem_wghta00" + (256 * (i / 10)) + (i % 10)),
+				.FILENAMEI("mem_wghti00" + (256 * (i / 10)) + (i % 10)),
+				.FILENAMEF("mem_wghtf00" + (256 * (i / 10)) + (i % 10)),
+				.FILENAMEO("mem_wghto00" + (256 * (i / 10)) + (i % 10))
 
 			) inst_lstm_cell (
 				.clk   (clk),
 				.rst   (rst),
 				.sel   (sel),
-				.i_x   (i_x),
+				.i_x   (concatenated_input),
 				.i_w_a (i_w_a),
 				.i_w_i (i_w_i),
 				.i_w_f (i_w_f),
@@ -111,10 +119,17 @@ generate
 				.o_f   (o_f[(i+1)*WIDTH-1:i*WIDTH]),
 				.o_o   (o_o[(i+1)*WIDTH-1:i*WIDTH]),
 				.o_c   (o_c[(i+1)*WIDTH-1:i*WIDTH]),
-				.o_h   (o_h[(i+1)*WIDTH-1:i*WIDTH])
+				.o_h   (o_h[(i+1)*WIDTH-1:i*WIDTH]),
+				.o_h_prev (o_h_prev[(i+1)*WIDTH-1:i*WIDTH])
 			);
+
 	end
 endgenerate
+
+multiplexer #(.WIDTH(NUM_LSTM*WIDTH)) inst_multiplexer (.i_a(null_num), .i_b(o_h_prev), .sel(sel), .o(out_multiplexer));
+
+
+
 
 endmodule
 
