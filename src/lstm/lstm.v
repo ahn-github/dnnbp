@@ -11,7 +11,7 @@
 //					  
 ////////////////////////////////////////////////////////////////////////////////
 
-module lstm (clk, rst, sel, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
+module lstm (clk, rst, sel, load_h, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o,
 o_b_a, o_b_i, o_b_f, o_b_o, 
@@ -31,7 +31,7 @@ parameter FILENAMEO="mem_wghto.list";
 input clk, rst;
 
 // control ports
-input sel;
+input sel, load_h;
 
 // input ports
 input signed [NUM*WIDTH-1:0] i_x;
@@ -100,6 +100,7 @@ generate
 				.clk   (clk),
 				.rst   (rst),
 				.sel   (sel),
+				.load_h (load_h),
 				.i_x   (concatenated_input),
 				.i_w_a (i_w_a),
 				.i_w_i (i_w_i),

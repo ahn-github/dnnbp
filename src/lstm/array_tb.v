@@ -18,7 +18,7 @@ parameter NUM_LSTM = 8;
 parameter NUM_ITERATIONS = 8;
 parameter WIDTH = 32;
 
-reg clk, rst, sel,load;
+reg clk, rst, sel, load, load_h;
 reg [WIDTH-1:0] temp_x, count;
 reg [(NUM-1)*WIDTH-1:0] x; //register declaration for storing each line of file.
 
@@ -47,6 +47,7 @@ array #(
         .clk   (clk),
         .rst   (rst),
         .sel   (sel),
+        .load_h(load_h),
         .load  (load),
         .i_w_a (i_w_a),
         .i_w_i (i_w_i),
@@ -64,68 +65,192 @@ initial
 begin
     
     
-    // TESTING
+    // setting
     	clk = 1;
     	rst <= 1;
     	sel <=0;
 	load <=0;
-        #100
+    	load_h <=0;
+       	#100
+
+    //load t0
 	rst <= 0;
         sel <=0; 
 	load <=0;
+    	load_h <=0;
 	#4400
+   
 	load <=1;
+	#100 
+   // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+
+	load <=0;
+	load_h <=0;
+	#4300
+  // load t1
+	load <=1;
+        #100
+  // calculating h	
+	load <=0;
+	load_h<=1; 
+	sel <=1;
+	#100
+	
+	
+        load <=0;
+        load_h <=0;
+	#4300
+ // load t2
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t3
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
 	#100
 	load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
+	load_h <=0;
+	#4300
+ // load t4
 	load <=1;
-	sel<=1;
 	#100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
-	load <=1;
-	sel<=1;
-        #100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
-	load <=1;
-	sel<=1;
-        #100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
-	load <=1;
-	sel<=1;
-        #100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
-	load <=1;
-	sel<=1;
-        #100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
-	load <=1;
-	sel<=1;
+ // calculating h
+	load <=0;
+	load_h <=1;
 	#100
-        load <=0;
-	rst <=0;
-	sel <=0;
-	#4400
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t5
 	load <=1;
-	sel<=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t6
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t7
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300;
 
+// new input
+	
+//load t0
+	rst <= 0;
+        sel <=0; 
+	load <=0;
+    	load_h <=0;
+	#4400
+   
+	load <=1;
+	#100 
+// calculating h
+	load <=0;
+	load_h <=1;
+	#100
 
+	load <=0;
+	load_h <=0;
+	#4300
+  // load t1
+	load <=1;
+        #100
+  // calculating h	
+	load <=0;
+	load_h<=1; 
+	sel <=1;
+	#100
+	
+	
+        load <=0;
+        load_h <=0;
+	#4300
+ // load t2
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t3
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t4
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t5
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t6
+	load <=1;
+	#100
+ // calculating h
+	load <=0;
+	load_h <=1;
+	#100
+	load <=0;
+	load_h <=0;
+	#4300
+ // load t7
+	load <=1;
+	#100;
 		
 end 
 
