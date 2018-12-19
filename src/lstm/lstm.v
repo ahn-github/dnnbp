@@ -15,7 +15,8 @@ module lstm (clk, rst, sel, i_x, i_w_a, i_w_i, i_w_f, i_w_o,
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o,
 o_b_a, o_b_i, o_b_f, o_b_o, 
-o_a, o_i, o_f, o_o, o_c, o_h);
+o_a, o_i, o_f, o_o, o_c, o_h,
+o_c_x);
 
 // parameters
 parameter WIDTH = 32;
@@ -62,6 +63,7 @@ output signed [NUM_LSTM*WIDTH-1:0] o_a;
 output signed [NUM_LSTM*WIDTH-1:0] o_i;
 output signed [NUM_LSTM*WIDTH-1:0] o_f;
 output signed [NUM_LSTM*WIDTH-1:0] o_o;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_c_x;
 
 wire signed [NUM_LSTM*WIDTH-1:0] o_h_prev;
 wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] concatenated_input;
@@ -69,6 +71,7 @@ wire signed [NUM_LSTM*WIDTH-1:0] out_multiplexer;
 wire signed [NUM_LSTM*WIDTH-1:0] null_num = {NUM_LSTM*WIDTH{1'b0}};
 
 assign concatenated_input = {out_multiplexer, i_x};
+assign o_c_x = concatenated_input;
 
 generate
     genvar i;
@@ -82,7 +85,7 @@ generate
     // [ o_a(n)....o_a(3)|o_a(2)|o_a(1)|o_a(0) ]
     // ----the same things happen to another gates-----
 
-       for (i = 0; i < NUM_LSTM; i = i + 1)
+    for (i = 0; i < NUM_LSTM; i = i + 1)
 	begin:lstm_
 		lstm_cell #(
 				.WIDTH(WIDTH),
