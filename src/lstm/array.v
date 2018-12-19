@@ -10,7 +10,7 @@
 //					  
 ///////////////////////////////////////////////////////////////////////////////
 
-module array (clk, rst, sel, load, i_w_a, i_w_i, i_w_f, i_w_o,  
+module array (clk, rst, sel, load, load_h, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o, o_h);
 
 // parameters
@@ -24,7 +24,7 @@ parameter FILENAMEF="mem_wghtf.list";
 parameter FILENAMEO="mem_wghto.list";
 
 // control ports
-input clk, rst, sel, load;
+input clk, rst, sel, load, load_h;
 
 
 // input ports for backpropagation
@@ -56,6 +56,7 @@ lstm #(
 		.clk   (clk),
 		.rst   (rst),
 		.sel   (sel),
+		.load_h(load_h),
 		.i_x   (input_lstm),
 		.i_w_a (i_w_a),
 		.i_w_i (i_w_i),

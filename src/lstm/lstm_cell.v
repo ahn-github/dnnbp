@@ -11,7 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module lstm_cell (clk, rst, sel, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
+module lstm_cell (clk, rst, sel, load_h, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o, 
 o_b_a, o_b_i, o_b_f, o_b_o, 
@@ -32,6 +32,7 @@ input clk, rst;
 
 // control ports
 input sel;
+input load_h;
 
 // input ports
 input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
@@ -170,6 +171,7 @@ multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_c (.i_a(32'b0), .i_b(reg_c), .sel(
 
 tanh #(.WIDTH(WIDTH)) inst_tanh (.i(state_t), .o(tanh_state_t));
 
+sto_reg #(.WIDTH(WIDTH), .NUM(1)) inst_sto_reg (.clk(clk), .rst(rst), .load(load_h), .i(temp_h), .o(o_h_prev));
 
 always @(posedge clk or rst)
 begin
@@ -183,23 +185,11 @@ begin
 	end
 end
 
-always @(posedge clk or rst)
-begin
-	if (rst)	
-	begin
-		reg_input<=0;
-	end
-	else 
-	begin
-		reg_input<= temp_h;
-	end
-end
-
 assign o_c = state_t;
 assign o_a = temp_a;
 assign o_i = temp_i;
 assign o_f = temp_f;
 assign o_o = temp_o;
 assign o_h = temp_h;
-assign o_h_prev = reg_input;
+
 endmodule
