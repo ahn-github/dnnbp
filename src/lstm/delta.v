@@ -15,7 +15,8 @@ module delta(i_d_h_prev, i_h, i_d_c_prev, i_c_next, i_c, i_t, i_a, i_i, i_f, i_o
 // parameters
 parameter WIDTH = 32;
 parameter FRAC  = 24;
-parameter NUM = 3;
+parameter NUM = 2;
+parameter NUM_LSTM = 1;
 
 // common ports
 
@@ -27,13 +28,13 @@ input[WIDTH-1:0] i_d_h_prev, i_h;
 input[WIDTH-1:0] i_d_c_prev, i_c_next, i_c;
 input[WIDTH-1:0] i_a, i_i, i_f, i_o;
 input[WIDTH-1:0] i_f_prev;
-input[NUM*WIDTH-1:0] w_a, w_o, w_i, w_f;
+input[(NUM+NUM_LSTM)*WIDTH-1:0] w_a, w_o, w_i, w_f;
 
 // output ports
 output[WIDTH-1:0] o_d_tot;
 output[WIDTH-1:0] o_d_c_next;
 output[4*WIDTH-1:0] o_dgates;
-output[(NUM-1)*WIDTH-1:0] o_d_x_now;
+output[NUM*WIDTH-1:0] o_d_x_now;
 output[WIDTH-1:0] o_d_h_next;
 
 wire[WIDTH-1:0] temp_d_c_next;
@@ -43,7 +44,7 @@ wire[WIDTH-1:0] temp_d_i01, temp_d_i02, temp_d_i03;
 wire[WIDTH-1:0] temp_d_a01, temp_d_a02, temp_d_a03;
 wire[WIDTH-1:0] temp_d_f01, temp_d_f02, temp_d_f03;
 wire[WIDTH-1:0] temp_d_o01, temp_d_o02, temp_d_o03;
-wire[4*WIDTH-1:0] temp_d_h01, out_mul_2, dgates;
+wire[4*WIDTH-1:0] dgates;
 wire[WIDTH-1:0] d_h;
 wire[WIDTH-1:0] d_ao, d_ai, d_af, d_aa;
 wire[WIDTH-1:0] o_d_c_next;
@@ -134,7 +135,7 @@ assign dgates = {d_ao, d_af, d_ai, d_aa};
 
 generate
     genvar i;
-    for (i = NUM-1; i > 0; i = i - 1)
+    for (i = NUM; i > 0; i = i - 1)
     begin: dx
     	wire[4*WIDTH-1:0] temp1;
     	wire[4*WIDTH-1:0] out_mul_1;
@@ -144,12 +145,19 @@ generate
     	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult17[3:0] (.i_a(dgates), .i_b(temp1), .o(out_mul_1));
 		adder #(.NUM(4), .WIDTH(WIDTH)) ad (.i(out_mul_1), .o(o_d_x_now[i*WIDTH-1:(i-1)*WIDTH]));
     end
+
+    //ΔH_NEXT
+    for (i = (NUM+NUM_LSTM); i > NUM; i = i - 1)
+    begin: d_h_next
+
+        wire[4*WIDTH-1:0] temp_u, out_mul_2;
+
+        assign temp_u = {w_o[i*WIDTH-1:(i-1)*WIDTH],w_f[i*WIDTH-1:(i-1)*WIDTH],w_i[i*WIDTH-1:(i-1)*WIDTH],w_a[i*WIDTH-1:(i-1)*WIDTH]};
+        mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult18[3:0] (.i_a(dgates), .i_b(temp_u), .o(out_mul_2));
+        adder #(.NUM(4), .WIDTH(WIDTH)) add (.i(out_mul_2), .o(o_d_h_next));
+    end
 endgenerate
 
-//ΔH_NEXT
-assign temp_d_h01 = {w_o[NUM*WIDTH-1:(NUM-1)*WIDTH],w_f[NUM*WIDTH-1:(NUM-1)*WIDTH],w_i[NUM*WIDTH-1:(NUM-1)*WIDTH],w_a[NUM*WIDTH-1:(NUM-1)*WIDTH]};
-mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult18[3:0] (.i_a(dgates), .i_b(temp_d_h01), .o(out_mul_2));
-adder #(.NUM(4), .WIDTH(WIDTH)) add (.i(out_mul_2), .o(o_d_h_next));
 
 // Assign d gates as output
 assign o_dgates = dgates;

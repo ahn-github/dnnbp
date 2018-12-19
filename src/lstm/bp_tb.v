@@ -15,7 +15,8 @@ module bp_tb();
 parameter WIDTH = 32;
 parameter FRAC = 24;
 parameter TIMESTEP = 2;
-parameter NUM = 3; // Number of Inputs + 1 (prev Output)
+parameter NUM = 2; // Number of Inputs
+parameter NUM_LSTM = 1; // Number of Inputs
 
 // common ports
 
@@ -23,21 +24,22 @@ parameter NUM = 3; // Number of Inputs + 1 (prev Output)
 
 // registers
 reg signed [TIMESTEP*WIDTH-1:0] i_t, i_h, i_c, i_a, i_i, i_f, i_o;
-reg signed [TIMESTEP*NUM*WIDTH-1:0] i_x;
-reg signed [NUM*WIDTH-1:0] i_wa, i_wo, i_wi, i_wf;
+reg signed [TIMESTEP*(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
+reg signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_wa, i_wo, i_wi, i_wf;
 
 // wires
 wire signed [4*WIDTH-1:0] o_b;
-wire signed [NUM*WIDTH-1:0] o_wa;
-wire signed [NUM*WIDTH-1:0] o_wi;
-wire signed [NUM*WIDTH-1:0] o_wf;
-wire signed [NUM*WIDTH-1:0] o_wo;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wa;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wi;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wf;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wo;
 
 bp #(
 		.WIDTH(WIDTH),
 		.FRAC(FRAC),
 		.TIMESTEP(TIMESTEP),
-		.NUM(NUM)
+		.NUM(NUM),
+		.NUM_LSTM(NUM_LSTM)
 	) inst_bp (
 		.i_x      (i_x),
 		.i_t      (i_t),
@@ -85,7 +87,7 @@ assign ba = o_b[ 1*WIDTH-1 : 0*WIDTH ];
 
 generate
 	genvar i;
-	for (i = NUM; i > 0; i = i - 1)
+	for (i = NUM+NUM_LSTM; i > 0; i = i - 1)
 	begin:weights
 		wire signed [WIDTH-1:0] wo, wf, wi, wa;
 		assign wo = o_wo[ i*WIDTH-1 : (i-1)*WIDTH ];

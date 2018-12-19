@@ -17,7 +17,8 @@ module bp (i_x, i_t, i_h, i_c, i_a, i_i, i_f, i_o, i_wa, i_wo, i_wi, i_wf,
 parameter WIDTH = 32;
 parameter FRAC = 24;
 parameter TIMESTEP = 4;
-parameter NUM = 2; // Number of Inputs + 1 (prev Output)
+parameter NUM = 2; // Number of Inputs
+parameter NUM_LSTM = 1;
 
 // common ports
 
@@ -25,15 +26,15 @@ parameter NUM = 2; // Number of Inputs + 1 (prev Output)
 
 // input ports
 input signed [TIMESTEP*WIDTH-1:0] i_t, i_h, i_c, i_a, i_i, i_f, i_o;
-input signed [TIMESTEP*NUM*WIDTH-1:0] i_x;
-input signed [NUM*WIDTH-1:0] i_wa, i_wo, i_wi, i_wf;
+input signed [TIMESTEP*(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_wa, i_wo, i_wi, i_wf;
 
 // output ports
 output signed [4*WIDTH-1:0] o_b;
-output signed [NUM*WIDTH-1:0] o_wa;
-output signed [NUM*WIDTH-1:0] o_wi;
-output signed [NUM*WIDTH-1:0] o_wf;
-output signed [NUM*WIDTH-1:0] o_wo;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wa;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wi;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wf;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wo;
 
 // registers
 
@@ -65,7 +66,8 @@ generate
         delta #(
             .WIDTH(WIDTH),
             .FRAC(FRAC),
-            .NUM(NUM)
+            .NUM(NUM),
+            .NUM_LSTM(NUM_LSTM)
         ) d (
             .i_d_h_prev (d_d_h_prev_pass[i*WIDTH-1:(i-1)*WIDTH]),
             .i_h        (i_h            [i*WIDTH-1:(i-1)*WIDTH]),
@@ -78,10 +80,10 @@ generate
             .i_f        (i_f            [i*WIDTH-1:(i-1)*WIDTH]),
             .i_o        (i_o            [i*WIDTH-1:(i-1)*WIDTH]),
             .i_f_prev   (d_f_prev_pass  [i*WIDTH-1:(i-1)*WIDTH]),
-            .w_a        (i_wa           [NUM*WIDTH-1:0]),
-            .w_o        (i_wo           [NUM*WIDTH-1:0]),
-            .w_i        (i_wi           [NUM*WIDTH-1:0]),
-            .w_f        (i_wf           [NUM*WIDTH-1:0]),
+            .w_a        (i_wa           [(NUM+NUM_LSTM)*WIDTH-1:0]),
+            .w_o        (i_wo           [(NUM+NUM_LSTM)*WIDTH-1:0]),
+            .w_i        (i_wi           [(NUM+NUM_LSTM)*WIDTH-1:0]),
+            .w_f        (i_wf           [(NUM+NUM_LSTM)*WIDTH-1:0]),
             .o_d_tot    (d_loss         [i*WIDTH-1:(i-1)*WIDTH]),
             .o_dgates   (d_gates        [4*i*WIDTH-1:4*(i-1)*WIDTH]),
             .o_d_x_now  (),
@@ -91,10 +93,10 @@ generate
     end
 
     // Calculate multiplication of δa, δi, δf, δo with inputs
-    wire signed [TIMESTEP*NUM*WIDTH-1:0] o_mult_a, o_mult_i, o_mult_f, o_mult_o;
+    wire signed [TIMESTEP*(NUM+NUM_LSTM)*WIDTH-1:0] o_mult_a, o_mult_i, o_mult_f, o_mult_o;
 
     // i stands for number of inputs
-    for (i = 0; i < NUM; i = i + 1)
+    for (i = 0; i < (NUM+NUM_LSTM); i = i + 1)
     begin:x
         // j stands for number of timesteps
         for (j = 0; j < TIMESTEP; j = j + 1)
@@ -104,7 +106,7 @@ generate
                 .FRAC(FRAC)
             ) m_a (
                 .i_a( d_gates   [ (4*j+1)*WIDTH-1 : (4*j+0)*WIDTH ] ),
-                .i_b( i_x       [ ((NUM*j)+i+1)*WIDTH-1 : ((NUM*j)+i)*WIDTH] ),
+                .i_b( i_x       [ (((NUM+NUM_LSTM)*j)+i+1)*WIDTH-1 : (((NUM+NUM_LSTM)*j)+i)*WIDTH] ),
                 .o( o_mult_a    [ ((TIMESTEP*i)+j+1)*WIDTH-1 : ((TIMESTEP*i)+j)*WIDTH] )
             );
             mult_2in #(
@@ -112,7 +114,7 @@ generate
                 .FRAC(FRAC)
             ) m_i (
                 .i_a( d_gates   [ (4*j+2)*WIDTH-1 : (4*j+1)*WIDTH ] ),
-                .i_b( i_x       [ ((NUM*j)+i+1)*WIDTH-1 : ((NUM*j)+i)*WIDTH] ),
+                .i_b( i_x       [ (((NUM+NUM_LSTM)*j)+i+1)*WIDTH-1 : (((NUM+NUM_LSTM)*j)+i)*WIDTH] ),
                 .o( o_mult_i    [ ((TIMESTEP*i)+j+1)*WIDTH-1 : ((TIMESTEP*i)+j)*WIDTH] )
             );
             mult_2in #(
@@ -120,7 +122,7 @@ generate
                 .FRAC(FRAC)
             ) m_f (
                 .i_a( d_gates   [ (4*j+3)*WIDTH-1 : (4*j+2)*WIDTH ] ),
-                .i_b( i_x       [ ((NUM*j)+i+1)*WIDTH-1 : ((NUM*j)+i)*WIDTH] ),
+                .i_b( i_x       [ (((NUM+NUM_LSTM)*j)+i+1)*WIDTH-1 : (((NUM+NUM_LSTM)*j)+i)*WIDTH] ),
                 .o( o_mult_f    [ ((TIMESTEP*i)+j+1)*WIDTH-1 : ((TIMESTEP*i)+j)*WIDTH] )
             );
             mult_2in #(
@@ -128,14 +130,14 @@ generate
                 .FRAC(FRAC)
             ) m_o (
                 .i_a( d_gates   [ (4*j+4)*WIDTH-1 : (4*j+3)*WIDTH ] ),
-                .i_b( i_x       [ ((NUM*j)+i+1)*WIDTH-1 : ((NUM*j)+i)*WIDTH] ),
+                .i_b( i_x       [ (((NUM+NUM_LSTM)*j)+i+1)*WIDTH-1 : (((NUM+NUM_LSTM)*j)+i)*WIDTH] ),
                 .o( o_mult_o    [ ((TIMESTEP*i)+j+1)*WIDTH-1 : ((TIMESTEP*i)+j)*WIDTH] )
             );
         end
     end
 
     // Adding signals for W
-    for (i = 0; i < NUM-1; i = i + 1)
+    for (i = 0; i < NUM; i = i + 1)
     begin:weight
         adder #(
             .NUM(TIMESTEP),
@@ -168,34 +170,37 @@ generate
     end
 
     // Adding signals for U
-    adder #(
-        .NUM(TIMESTEP),
-        .WIDTH(WIDTH)
-    ) add_a (
-        .i( o_mult_a    [ TIMESTEP*NUM*WIDTH-1 : TIMESTEP*(NUM-1)*WIDTH ] ),
-        .o( o_wa        [ NUM*WIDTH-1 : (NUM-1)*WIDTH ] )
-    );
-    adder #(
-        .NUM(TIMESTEP),
-        .WIDTH(WIDTH)
-    ) add_i (
-        .i( o_mult_i    [ TIMESTEP*NUM*WIDTH-1 : TIMESTEP*(NUM-1)*WIDTH ] ),
-        .o( o_wi        [ NUM*WIDTH-1 : (NUM-1)*WIDTH ] )
-    );
-    adder #(
-        .NUM(TIMESTEP),
-        .WIDTH(WIDTH)
-    ) add_f (
-        .i( o_mult_f    [ TIMESTEP*NUM*WIDTH-1 : TIMESTEP*(NUM-1)*WIDTH ] ),
-        .o( o_wf        [ NUM*WIDTH-1 : (NUM-1)*WIDTH ] )
-    );
-    adder #(
-        .NUM(TIMESTEP),
-        .WIDTH(WIDTH)
-    ) add_o (
-        .i( o_mult_o    [ TIMESTEP*NUM*WIDTH-1 : TIMESTEP*(NUM-1)*WIDTH ] ),
-        .o( o_wo        [ NUM*WIDTH-1 : (NUM-1)*WIDTH ] )
-    );
+    for (i = NUM; i < NUM+NUM_LSTM; i = i + 1)
+    begin:U
+        adder #(
+            .NUM(TIMESTEP),
+            .WIDTH(WIDTH)
+        ) add_a (
+            .i( o_mult_a    [ ((i+1)*TIMESTEP)*WIDTH-1 : i*TIMESTEP*WIDTH ] ),
+            .o( o_wa        [ (i+1)*WIDTH-1 : i*WIDTH ] )
+        );
+        adder #(
+            .NUM(TIMESTEP),
+            .WIDTH(WIDTH)
+        ) add_i (
+            .i( o_mult_i    [ ((i+1)*TIMESTEP)*WIDTH-1 : i*TIMESTEP*WIDTH ] ),
+            .o( o_wi        [ (i+1)*WIDTH-1 : i*WIDTH ] )
+        );
+        adder #(
+            .NUM(TIMESTEP),
+            .WIDTH(WIDTH)
+        ) add_f (
+            .i( o_mult_f    [ ((i+1)*TIMESTEP)*WIDTH-1 : i*TIMESTEP*WIDTH ] ),
+            .o( o_wf        [ (i+1)*WIDTH-1 : i*WIDTH ] )
+        );
+        adder #(
+            .NUM(TIMESTEP),
+            .WIDTH(WIDTH)
+        ) add_o (
+            .i( o_mult_o    [ ((i+1)*TIMESTEP)*WIDTH-1 : i*TIMESTEP*WIDTH ] ),
+            .o( o_wo        [ (i+1)*WIDTH-1 : i*WIDTH ] )
+        );
+    end
 
     // Calculate B
     wire signed [TIMESTEP*WIDTH-1:0] da, di, df, do;
