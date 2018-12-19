@@ -48,10 +48,10 @@ input signed [WIDTH-1:0] i_b_o;
 
 
 // output ports
-output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_a;
-output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_i;
-output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_f;
-output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_o;
+output signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] o_w_a;
+output signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] o_w_i;
+output signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] o_w_f;
+output signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] o_w_o;
 output signed [WIDTH-1:0] o_b_a;
 output signed [WIDTH-1:0] o_b_i;
 output signed [WIDTH-1:0] o_b_f;
@@ -110,10 +110,10 @@ generate
 				.i_b_i (i_b_i),
 				.i_b_f (i_b_f),
 				.i_b_o (i_b_o),
-				.o_w_a (o_w_a),
-				.o_w_i (o_w_i),
-				.o_w_f (o_w_f),
-				.o_w_o (o_w_o),
+				.o_w_a (o_w_a [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+				.o_w_i (o_w_i [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+				.o_w_f (o_w_f [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+				.o_w_o (o_w_o [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
 				.o_b_a (o_b_a),
 				.o_b_i (o_b_i),
 				.o_b_f (o_b_f),

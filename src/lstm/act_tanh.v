@@ -14,10 +14,10 @@
 module act_tanh (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
-parameter NUM = 68;
+parameter NUM = 45;
 parameter WIDTH = 32;
 parameter NUM_LSTM = 8;
-parameter FILE_NAME = "mem_wght.list";
+parameter FILE_NAME = "mem_wghta00";
 
 // common ports
 input clk, rst;

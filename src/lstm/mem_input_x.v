@@ -23,7 +23,7 @@ output signed [WIDTH-1:0] data;
 reg signed [WIDTH-1:0] input_memory [0:NUM*NUM_ITERATIONS*2-1];
 
 initial begin
-$readmemh("mem_x", input_memory);
+$readmemh("mem_input.list", input_memory);
 end
 
 assign data = input_memory[addr];
