@@ -15,11 +15,12 @@ module lstm_cell (clk, rst, sel, i_x, i_w_a, i_w_i, i_w_f, i_w_o,
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o, 
 o_b_a, o_b_i, o_b_f, o_b_o, 
-o_a, o_i, o_f, o_o, o_c, o_h);
+o_a, o_i, o_f, o_o, o_c, o_h, o_h_prev);
 
 // parameters
 parameter WIDTH = 32;
-parameter NUM = 69;
+parameter NUM = 68; // number of input layer
+parameter NUM_LSTM = 8; // number of LSTM CELL
 parameter FILENAMEA="mem_wghta.list";
 parameter FILENAMEI="mem_wghti.list";
 parameter FILENAMEF="mem_wghtf.list";
@@ -33,13 +34,13 @@ input clk, rst;
 input sel;
 
 // input ports
-input signed [(NUM-1)*WIDTH-1:0] i_x;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
 
 // input ports for backpropagation
-input signed [NUM*WIDTH-1:0] i_w_a;
-input signed [NUM*WIDTH-1:0] i_w_i;
-input signed [NUM*WIDTH-1:0] i_w_f;
-input signed [NUM*WIDTH-1:0] i_w_o;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_i;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_f;
+input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_o;
 input signed [WIDTH-1:0] i_b_a;
 input signed [WIDTH-1:0] i_b_i;
 input signed [WIDTH-1:0] i_b_f;
@@ -47,10 +48,10 @@ input signed [WIDTH-1:0] i_b_o;
 
 
 // output ports
-output signed [NUM*WIDTH-1:0] o_w_a;
-output signed [NUM*WIDTH-1:0] o_w_i;
-output signed [NUM*WIDTH-1:0] o_w_f;
-output signed [NUM*WIDTH-1:0] o_w_o;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_a;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_i;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_f;
+output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_w_o;
 output signed [WIDTH-1:0] o_b_a;
 output signed [WIDTH-1:0] o_b_i;
 output signed [WIDTH-1:0] o_b_f;
@@ -61,12 +62,13 @@ output signed [WIDTH-1:0] o_a;
 output signed [WIDTH-1:0] o_i;
 output signed [WIDTH-1:0] o_f;
 output signed [WIDTH-1:0] o_o;
+output signed [WIDTH-1:0] o_h_prev;
 
 // registers
 reg signed [WIDTH-1:0] reg_c;
 reg signed [WIDTH-1:0] reg_input;
 
-wire signed [NUM*WIDTH-1:0] concatenated_input;
+wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] concatenated_input;
 wire signed [WIDTH-1:0] temp_a;
 wire signed [WIDTH-1:0] temp_i;
 wire signed [WIDTH-1:0] temp_f;
@@ -80,7 +82,7 @@ wire signed [WIDTH-1:0] out_multiplexer_c;
 wire signed [WIDTH-1:0] out_multiplexer_h;
 wire signed [WIDTH-1:0] tanh_state_t;
 
-assign concatenated_input ={out_multiplexer_h, i_x};
+// assign concatenated_input ={out_multiplexer_h, i_x};
 
 
 
@@ -92,7 +94,7 @@ act_tanh #(
 			.clk (clk),
 			.rst (rst),
 			.wr  (wr),
-			.i_k (concatenated_input),
+			.i_k (i_x),
 			.i_w(i_w_a),
 			.i_b(i_b_a),
 			.o_a (temp_a),
@@ -109,7 +111,7 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
-			.i_k (concatenated_input),
+			.i_k (i_x),
 			.i_w(i_w_i),
 			.i_b(i_b_i),
 			.o_a (temp_i),
@@ -125,7 +127,7 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
-			.i_k (concatenated_input),
+			.i_k (i_x),
 			.i_w(i_w_f),
 			.i_b(i_b_f),
 			.o_a (temp_f),
@@ -141,7 +143,7 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
-			.i_k (concatenated_input),
+			.i_k (i_x),
 			.i_w(i_w_o),
 			.i_b(i_b_o),
 			.o_a (temp_o),
@@ -164,7 +166,7 @@ adder_2in #(.WIDTH(WIDTH)) inst_adder_2in (.i_a(mul_ai), .i_b(mul_fc), .o(state_
 
 multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_c (.i_a(32'b0), .i_b(reg_c), .sel(sel), .o(out_multiplexer_c));
 
-multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_h (.i_a(32'b0), .i_b(reg_input), .sel(sel), .o(out_multiplexer_h));
+// multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_h (.i_a(32'b0), .i_b(reg_input), .sel(sel), .o(out_multiplexer_h));
 
 tanh #(.WIDTH(WIDTH)) inst_tanh (.i(state_t), .o(tanh_state_t));
 
@@ -199,5 +201,5 @@ assign o_i = temp_i;
 assign o_f = temp_f;
 assign o_o = temp_o;
 assign o_h = temp_h;
-
+assign o_h_prev = reg_input;
 endmodule
