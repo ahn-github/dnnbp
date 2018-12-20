@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 module bp (i_x, i_t, i_h, i_c, i_a, i_i, i_f, i_o, i_wa, i_wo, i_wi, i_wf,
-           o_b, o_wa, o_wi, o_wf, o_wo);
+           o_b, o_wa, o_wi, o_wf, o_wo, o_d_loss);
 
 // parameters
 parameter WIDTH = 32;
@@ -35,6 +35,7 @@ output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wa;
 output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wi;
 output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wf;
 output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wo;
+output signed [WIDTH-1:0] o_d_loss;
 
 // registers
 
@@ -56,6 +57,8 @@ assign d_d_c_prev_pass[TIMESTEP*WIDTH-1:(TIMESTEP-1)*WIDTH] = {WIDTH{1'b0}};
 
 assign d_d_h_prev_pass[(TIMESTEP-1)*NUM_LSTM*WIDTH-1:0] = d_d_h_next_pass[TIMESTEP*NUM_LSTM*WIDTH-1:NUM_LSTM*WIDTH];
 assign d_d_c_prev_pass[(TIMESTEP-1)*WIDTH-1:0] = d_d_c_next_pass[TIMESTEP*WIDTH-1:WIDTH];
+
+assign o_d_loss = d_loss[TIMESTEP*WIDTH-1: (TIMESTEP-1)*WIDTH];
 
 generate
     genvar i;

@@ -57,6 +57,8 @@ begin
 		// To add new value to RAM
 		wght_mem[0] <= {i_w, i_b};
 		$writememh(FILE_NAME, wght_mem);
+		// $display(FILE_NAME);
+		// $display(wght_mem[]);
 	end
 end
 
