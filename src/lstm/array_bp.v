@@ -9,8 +9,7 @@
 //                    
 ///////////////////////////////////////////////////////////////////////////////
 
-module array_bp (clk, rst, sel, load_in, load_bp, load_t, load_h, i_w_a, i_w_i, i_w_f, i_w_o,  
-i_b_a, i_b_i, i_b_f, i_b_o, i_addr_t, o_h);
+module array_bp (clk, rst, sel, load_in, load_bp, load_t, load_h, wr, i_addr_t, o_h);
 
 // parameters
 parameter WIDTH = 32;
@@ -24,17 +23,9 @@ parameter FILENAMEF="mem_wghtf.list";
 parameter FILENAMEO="mem_wghto.list";
 
 // control ports
-input clk, rst, sel, load_in, load_bp, load_t, load_h;
+input clk, rst, sel, load_in, load_bp, load_t, load_h, wr;
 
 // input ports for backpropagation
-input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
-input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_i;
-input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_f;
-input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_o;
-input signed [WIDTH-1:0] i_b_a;
-input signed [WIDTH-1:0] i_b_i;
-input signed [WIDTH-1:0] i_b_f;
-input signed [WIDTH-1:0] i_b_o;
 input signed [WIDTH-1:0] i_addr_t;
 
 // output ports
@@ -51,16 +42,25 @@ wire signed [NUM_ITERATIONS*(NUM+NUM_LSTM)*WIDTH-1:0] all_c_x;
 wire signed [NUM_LSTM*WIDTH-1:0] o_h;
 wire signed [NUM_LSTM*WIDTH-1:0] l_c, l_a, l_i, l_f, l_o;
 
-wire signed [8*WIDTH-1:0] all_t, reg_t;
+wire signed [8*WIDTH-1:0] all_t;
 
-wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_a;
-wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_i;
-wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_f;
-wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_o;
-wire signed [WIDTH-1:0] b_a;
-wire signed [WIDTH-1:0] b_i;
-wire signed [WIDTH-1:0] b_f;
-wire signed [WIDTH-1:0] b_o;
+wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_a, d_w_a, lr_w_a, n_w_a;
+wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_i, d_w_i, lr_w_i, n_w_i;
+wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_f, d_w_f, lr_w_f, n_w_f;
+wire signed [NUM_LSTM*(NUM+NUM_LSTM)*WIDTH-1:0] w_o, d_w_o, lr_w_o, n_w_o;
+
+wire signed [NUM_LSTM*WIDTH-1:0] d_b_a, n_b_a;
+wire signed [NUM_LSTM*WIDTH-1:0] d_b_i, n_b_i;
+wire signed [NUM_LSTM*WIDTH-1:0] d_b_f, n_b_f;
+wire signed [NUM_LSTM*WIDTH-1:0] d_b_o, n_b_o;
+
+wire signed [NUM_LSTM*4*WIDTH-1:0] d_b;
+wire signed [NUM_LSTM*WIDTH-1:0] b_a;
+wire signed [NUM_LSTM*WIDTH-1:0] b_i;
+wire signed [NUM_LSTM*WIDTH-1:0] b_f;
+wire signed [NUM_LSTM*WIDTH-1:0] b_o;
+
+wire signed [NUM_LSTM*WIDTH-1:0] lr_b_a, lr_b_i, lr_b_f, lr_b_o;
 
 
 ////////////////////////////////////////////
@@ -131,15 +131,16 @@ lstm #(
 		.rst   (rst),
 		.sel   (sel),
 		.load_h(load_h),
+		.wr     (wr),
 		.i_x   (input_lstm),
-		.i_w_a (i_w_a),
-		.i_w_i (i_w_i),
-		.i_w_f (i_w_f),
-		.i_w_o (i_w_o),
-		.i_b_a (i_b_a),
-		.i_b_i (i_b_i),
-		.i_b_f (i_b_f),
-		.i_b_o (i_b_o),
+		.i_w_a (n_w_a),
+		.i_w_i (n_w_i),
+		.i_w_f (n_w_f),
+		.i_w_o (n_w_o),
+		.i_b_a (n_b_a),
+		.i_b_i (n_b_i),
+		.i_b_f (n_b_f),
+		.i_b_o (n_b_o),
 		.o_h   (o_h),
 		.o_c   (l_c),
 		.o_a   (l_a),
@@ -234,12 +235,6 @@ generate
 				.o (all_o)
 			);
 
-		wire signed [4*WIDTH-1:0] b;
-		wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wa;
-		wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wi;
-		wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wf;
-		wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wo;
-
 		bp #(
 			.WIDTH(WIDTH),
 			.FRAC(FRAC),
@@ -255,19 +250,46 @@ generate
 			.i_i  (all_i),
 			.i_f  (all_f),
 			.i_o  (all_o),
-			.i_wa (w_a[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
-			.i_wo (w_o[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
-			.i_wi (w_i[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
-			.i_wf (w_f[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
-			.o_b  (b),
-			.o_wa (wa),
-			.o_wi (wi),
-			.o_wf (wf),
-			.o_wo (wo)
+			.i_wa (w_a  [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.i_wo (w_o  [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.i_wi (w_i  [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.i_wf (w_f  [ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.o_b  (d_b  [ (i+1)*4*WIDTH-1 : i*4*WIDTH ]),
+			.o_wa (d_w_a[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.o_wi (d_w_i[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.o_wf (d_w_f[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ]),
+			.o_wo (d_w_o[ (i+1)*(NUM+NUM_LSTM)*WIDTH-1 : i*(NUM+NUM_LSTM)*WIDTH ])
 		);
+	end
+
+	for (i = 0; i < NUM_LSTM; i = i + 1)
+	begin:parse_b
+		assign d_b_a = d_b [ (i*4+1-0)*WIDTH-1 : (i*4-0)*WIDTH ];
+		assign d_b_i = d_b [ (i*4+1-1)*WIDTH-1 : (i*4-1)*WIDTH ];
+		assign d_b_f = d_b [ (i*4+1-2)*WIDTH-1 : (i*4-2)*WIDTH ];
+		assign d_b_o = d_b [ (i*4+1-3)*WIDTH-1 : (i*4-3)*WIDTH ];
 	end
 endgenerate
 
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_b_a[NUM_LSTM-1:0] (.i_a({NUM_LSTM{32'hff_e66667}}), .i_b(d_b_a), .o(lr_b_a));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_b_i[NUM_LSTM-1:0] (.i_a({NUM_LSTM{32'hff_e66667}}), .i_b(d_b_i), .o(lr_b_i));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_b_f[NUM_LSTM-1:0] (.i_a({NUM_LSTM{32'hff_e66667}}), .i_b(d_b_f), .o(lr_b_f));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_b_o[NUM_LSTM-1:0] (.i_a({NUM_LSTM{32'hff_e66667}}), .i_b(d_b_o), .o(lr_b_o));
+
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_w_a[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a({NUM_LSTM*(NUM+NUM_LSTM){32'hff_e66667}}), .i_b(d_w_a), .o(lr_w_a));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_w_i[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a({NUM_LSTM*(NUM+NUM_LSTM){32'hff_e66667}}), .i_b(d_w_i), .o(lr_w_i));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_w_f[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a({NUM_LSTM*(NUM+NUM_LSTM){32'hff_e66667}}), .i_b(d_w_f), .o(lr_w_f));
+	mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) lr_mul_d_w_o[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a({NUM_LSTM*(NUM+NUM_LSTM){32'hff_e66667}}), .i_b(d_w_o), .o(lr_w_o));
+
+	adder_2in #(.WIDTH(WIDTH)) add_n_b_a[NUM_LSTM-1:0] (.i_a(lr_b_a), .i_b(b_a), .o(n_b_a));
+	adder_2in #(.WIDTH(WIDTH)) add_n_b_i[NUM_LSTM-1:0] (.i_a(lr_b_i), .i_b(b_i), .o(n_b_i));
+	adder_2in #(.WIDTH(WIDTH)) add_n_b_f[NUM_LSTM-1:0] (.i_a(lr_b_f), .i_b(b_f), .o(n_b_f));
+	adder_2in #(.WIDTH(WIDTH)) add_n_b_o[NUM_LSTM-1:0] (.i_a(lr_b_o), .i_b(b_o), .o(n_b_o));
+
+	adder_2in #(.WIDTH(WIDTH)) add_n_w_a[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a(lr_w_a), .i_b(w_a), .o(n_w_a));
+	adder_2in #(.WIDTH(WIDTH)) add_n_w_i[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a(lr_w_i), .i_b(w_i), .o(n_w_i));
+	adder_2in #(.WIDTH(WIDTH)) add_n_w_f[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a(lr_w_f), .i_b(w_f), .o(n_w_f));
+	adder_2in #(.WIDTH(WIDTH)) add_n_w_o[NUM_LSTM*(NUM+NUM_LSTM)-1:0] (.i_a(lr_w_o), .i_b(w_o), .o(n_w_o));
 
 endmodule
 

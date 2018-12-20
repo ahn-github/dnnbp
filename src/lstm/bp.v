@@ -39,8 +39,8 @@ output signed [(NUM+NUM_LSTM)*WIDTH-1:0] o_wo;
 // registers
 
 // wires
-wire signed [TIMESTEP*WIDTH-1:0] d_c_next_pass, d_f_prev_pass, d_loss;
-wire signed [TIMESTEP*WIDTH-1:0] d_d_h_prev_pass, d_d_c_prev_pass, d_d_h_next_pass, d_d_c_next_pass;
+wire signed [TIMESTEP*WIDTH-1:0] d_c_next_pass, d_f_prev_pass, d_d_c_prev_pass, d_d_c_next_pass, d_loss;
+wire signed [NUM_LSTM*TIMESTEP*WIDTH-1:0] d_d_h_prev_pass, d_d_h_next_pass ;
 
 // d_gates structure:
 // [   delta_tn  |------|   delta_t0  ]
@@ -51,10 +51,10 @@ wire signed [TIMESTEP*4*WIDTH-1:0] d_gates;
 assign d_c_next_pass = {i_c[(TIMESTEP-1)*WIDTH-1:0], {WIDTH{1'b0}}};
 assign d_f_prev_pass = {{WIDTH{1'b0}}, i_f[TIMESTEP*WIDTH-1:WIDTH]};
 
-assign d_d_h_prev_pass[TIMESTEP*WIDTH-1:(TIMESTEP-1)*WIDTH] = {WIDTH{1'b0}};
+assign d_d_h_prev_pass[TIMESTEP*NUM_LSTM*WIDTH-1:(TIMESTEP-1)*NUM_LSTM*WIDTH] = {NUM_LSTM{32'b0}};
 assign d_d_c_prev_pass[TIMESTEP*WIDTH-1:(TIMESTEP-1)*WIDTH] = {WIDTH{1'b0}};
 
-assign d_d_h_prev_pass[(TIMESTEP-1)*WIDTH-1:0] = d_d_h_next_pass[TIMESTEP*WIDTH-1:WIDTH];
+assign d_d_h_prev_pass[(TIMESTEP-1)*NUM_LSTM*WIDTH-1:0] = d_d_h_next_pass[TIMESTEP*NUM_LSTM*WIDTH-1:NUM_LSTM*WIDTH];
 assign d_d_c_prev_pass[(TIMESTEP-1)*WIDTH-1:0] = d_d_c_next_pass[TIMESTEP*WIDTH-1:WIDTH];
 
 generate
@@ -69,7 +69,7 @@ generate
             .NUM(NUM),
             .NUM_LSTM(NUM_LSTM)
         ) d (
-            .i_d_h_prev (d_d_h_prev_pass[i*WIDTH-1:(i-1)*WIDTH]),
+            .i_d_h_prev (d_d_h_prev_pass[i*NUM_LSTM*WIDTH-1:(i-1)*NUM_LSTM*WIDTH]),
             .i_h        (i_h            [i*WIDTH-1:(i-1)*WIDTH]),
             .i_d_c_prev (d_d_c_prev_pass[i*WIDTH-1:(i-1)*WIDTH]),
             .i_c_next   (d_c_next_pass  [i*WIDTH-1:(i-1)*WIDTH]),
@@ -87,7 +87,7 @@ generate
             .o_d_tot    (d_loss         [i*WIDTH-1:(i-1)*WIDTH]),
             .o_dgates   (d_gates        [4*i*WIDTH-1:4*(i-1)*WIDTH]),
             .o_d_x_now  (),
-            .o_d_h_next (d_d_h_next_pass[i*WIDTH-1:(i-1)*WIDTH]),
+            .o_d_h_next (d_d_h_next_pass[i*NUM_LSTM*WIDTH-1:(i-1)*NUM_LSTM*WIDTH]),
             .o_d_c_next (d_d_c_next_pass[i*WIDTH-1:(i-1)*WIDTH])
         );
     end

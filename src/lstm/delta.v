@@ -23,8 +23,8 @@ parameter NUM_LSTM = 1;
 // control ports
 
 // input ports
-input[WIDTH-1:0] i_t;
-input[WIDTH-1:0] i_d_h_prev, i_h;
+input[WIDTH-1:0] i_t, i_h;
+input[NUM_LSTM*WIDTH-1:0] i_d_h_prev;
 input[WIDTH-1:0] i_d_c_prev, i_c_next, i_c;
 input[WIDTH-1:0] i_a, i_i, i_f, i_o;
 input[WIDTH-1:0] i_f_prev;
@@ -35,7 +35,7 @@ output[WIDTH-1:0] o_d_tot;
 output[WIDTH-1:0] o_d_c_next;
 output[4*WIDTH-1:0] o_dgates;
 output[NUM*WIDTH-1:0] o_d_x_now;
-output[WIDTH-1:0] o_d_h_next;
+output[NUM_LSTM*WIDTH-1:0] o_d_h_next;
 
 wire[WIDTH-1:0] temp_d_c_next;
 wire[WIDTH-1:0] o_tan_c;
@@ -154,7 +154,7 @@ generate
 
         assign temp_u = {w_o[i*WIDTH-1:(i-1)*WIDTH],w_f[i*WIDTH-1:(i-1)*WIDTH],w_i[i*WIDTH-1:(i-1)*WIDTH],w_a[i*WIDTH-1:(i-1)*WIDTH]};
         mult_2in #(.WIDTH(WIDTH), .FRAC(FRAC)) mult18[3:0] (.i_a(dgates), .i_b(temp_u), .o(out_mul_2));
-        adder #(.NUM(4), .WIDTH(WIDTH)) add (.i(out_mul_2), .o(o_d_h_next));
+        adder #(.NUM(4), .WIDTH(WIDTH)) add (.i(out_mul_2), .o(o_d_h_next[(i-NUM)*WIDTH-1:(i-1-NUM)*WIDTH]));
     end
 endgenerate
 

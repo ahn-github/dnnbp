@@ -23,16 +23,8 @@ parameter FILENAMEI="mem_wghti";
 parameter FILENAMEF="mem_wghtf";
 parameter FILENAMEO="mem_wghto";
 
-reg clk, rst, sel, load_in, load_bp, load_t, load_h;
+reg clk, rst, sel, load_in, load_bp, load_t, load_h, wr;
 
-reg signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
-reg signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_i;
-reg signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_f;
-reg signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_o;
-reg signed [WIDTH-1:0] i_b_a;
-reg signed [WIDTH-1:0] i_b_i;
-reg signed [WIDTH-1:0] i_b_f;
-reg signed [WIDTH-1:0] i_b_o;
 reg signed [WIDTH-1:0] i_addr_t;
 
 wire signed [NUM_LSTM*WIDTH-1:0] o_h;
@@ -55,14 +47,7 @@ array_bp #(
 		.load_bp  (load_bp),
 		.load_t   (load_t),
 		.load_h   (load_h),
-		.i_w_a    (i_w_a),
-		.i_w_i    (i_w_i),
-		.i_w_f    (i_w_f),
-		.i_w_o    (i_w_o),
-		.i_b_a    (i_b_a),
-		.i_b_i    (i_b_i),
-		.i_b_f    (i_b_f),
-		.i_b_o    (i_b_o),
+		.wr       (wr),
 		.i_addr_t (i_addr_t),
 		.o_h      (o_h)
     );
@@ -75,236 +60,230 @@ begin
 	rst <= 1;
 	sel <=0;
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
-	load_t <=0;
+	load_bp <=0;
    	#100;
 
     //load t0
 	rst <= 0;
     sel <=0; 
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4400
    
 	load_in <=1;
-	load_bp <=1;
 	#100 
    // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
   // load t1
 	load_in <=1;
-	load_bp <=1;
         #100
   // calculating h	
 	load_in <=0;
-	load_bp <=0;
 	load_h<=1; 
 	sel <=1;
 	#100
 	
 	
         load_in <=0;
-        load_bp <=0;
         load_h <=0;
+        load_bp <=0;
 	#4300
  // load t2
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t3
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t4
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t5
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t6
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t7
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300;
 
+	#100;
+// Update weight
+	wr <= 1;
+	#100;
+	wr <= 0;
+	// i = i + 1;
+	// $display("%d, %x", i, o_cost);
+	// if (i == 10000)
+		// $display("FINAL COST: %x", o_cost);
+	// rst_btch <= 1;
+	#100; // delay for write to memory & reset cost
+	// rst_btch <= 0;
+
 // new input
-	
+
 //load t0
 	rst <= 0;
-        sel <=0; 
+	sel <=0; 
 	load_in <=0;
+	load_h <=0;
 	load_bp <=0;
-    	load_h <=0;
 	#4400
    
 	load_in <=1;
-	load_bp <=1;
 	#100 
 // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
   // load t1
 	load_in <=1;
-	load_bp <=1;
         #100
   // calculating h	
 	load_in <=0;
-	load_bp <=0;
 	load_h<=1; 
 	sel <=1;
 	#100
 	
-	
-        load_in <=0;
-        load_bp <=0;
-        load_h <=0;
+
+    load_in <=0;
+    load_h <=0;
+    load_bp <=0;
 	#4300
  // load t2
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t3
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t4
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t5
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t6
 	load_in <=1;
-	load_bp <=1;
 	#100
  // calculating h
 	load_in <=0;
-	load_bp <=0;
 	load_h <=1;
+	load_bp <=1;
 	#100
 	load_in <=0;
-	load_bp <=0;
 	load_h <=0;
+	load_bp <=0;
 	#4300
  // load t7
 	load_in <=1;
-	load_bp <=1;
 	#100;
 		
 end 
@@ -320,7 +299,7 @@ always
 begin
 	i_addr_t = 0;
 	load_t = 1;
-	#100;
+	#200;
 	i_addr_t = 1;
 	#100;
 	i_addr_t = 2;
@@ -337,12 +316,12 @@ begin
 	load_t = 0;
 	#100;
 
-	#35100;
+	#35000;
 	// tunggu sampe data kedua
 
 	i_addr_t = 8;
 	load_t = 1;
-	#100;
+	#200;
 	i_addr_t = 9;
 	#100;
 	i_addr_t = 10;
@@ -359,7 +338,7 @@ begin
 	load_t = 0;
 	#100;
 
-	#35100;
+	#35000;
 end
 
 // always

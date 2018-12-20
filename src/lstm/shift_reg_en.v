@@ -44,7 +44,6 @@ begin
 			reg_shift= {i, reg_shift[(NUM_ITERATIONS)*WIDTH-1:WIDTH]};
 	 		
 		end
-
 end
 
 assign o = reg_shift;
