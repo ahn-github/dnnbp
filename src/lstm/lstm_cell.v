@@ -11,11 +11,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module lstm_cell (clk, rst, sel, load_h, wr, i_x, i_w_a, i_w_i, i_w_f, i_w_o,  
+module lstm_cell (clk, rst, wr, i_x, i_prev_state, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o, 
 o_b_a, o_b_i, o_b_f, o_b_o, 
-o_a, o_i, o_f, o_o, o_c, o_h, o_h_prev);
+o_a, o_i, o_f, o_o, o_c, o_h);
 
 // parameters
 parameter WIDTH = 32;
@@ -31,12 +31,11 @@ parameter FILENAMEO="mem_wghto.list";
 input clk, rst;
 
 // control ports
-input sel;
-input load_h;
 input wr;
 
 // input ports
 input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
+input signed [WIDTH-1:0] i_prev_state;
 
 // input ports for backpropagation
 input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_w_a;
@@ -64,13 +63,8 @@ output signed [WIDTH-1:0] o_a;
 output signed [WIDTH-1:0] o_i;
 output signed [WIDTH-1:0] o_f;
 output signed [WIDTH-1:0] o_o;
-output signed [WIDTH-1:0] o_h_prev;
 
-// registers
-reg signed [WIDTH-1:0] reg_c;
-reg signed [WIDTH-1:0] reg_input;
-
-wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] concatenated_input;
+// wires
 wire signed [WIDTH-1:0] temp_a;
 wire signed [WIDTH-1:0] temp_i;
 wire signed [WIDTH-1:0] temp_f;
@@ -80,17 +74,12 @@ wire signed [WIDTH-1:0] temp_h;
 wire signed [WIDTH-1:0] mul_ai;
 wire signed [WIDTH-1:0] mul_fc;
 wire signed [WIDTH-1:0] state_t;
-wire signed [WIDTH-1:0] out_multiplexer_c;
-wire signed [WIDTH-1:0] out_multiplexer_h;
 wire signed [WIDTH-1:0] tanh_state_t;
-
-// assign concatenated_input ={out_multiplexer_h, i_x};
-
-
 
 act_tanh #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
+			.NUM_LSTM(NUM_LSTM),
 			.FILE_NAME(FILENAMEA)
 		) 	inst_act_tanh (
 			.clk (clk),
@@ -108,6 +97,7 @@ act_tanh #(
 act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
+			.NUM_LSTM(NUM_LSTM),
 			.FILE_NAME(FILENAMEI)
 		) inst_perceptron_i (
 			.clk (clk),
@@ -124,6 +114,7 @@ act_sigmoid #(
 act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
+			.NUM_LSTM(NUM_LSTM),
 			.FILE_NAME(FILENAMEF)
 		) inst_perceptron_f (
 			.clk (clk),
@@ -140,6 +131,7 @@ act_sigmoid #(
 act_sigmoid #(
 			.NUM(NUM),
 			.WIDTH(WIDTH),
+			.NUM_LSTM(NUM_LSTM),
 			.FILE_NAME(FILENAMEO)
 		) inst_perceptron_o (
 			.clk (clk),
@@ -154,37 +146,17 @@ act_sigmoid #(
 		);
 
 // a(t) * i(t)
-
 mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst_mult_2in (.i_a(temp_a), .i_b(temp_i), .o(mul_ai));
 
 // f(t) * c(t-1)
-mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst2_mult_2in (.i_a(temp_f), .i_b(out_multiplexer_c), .o(mul_fc));
-
-// o_h = tanh(state(t)  * o
-mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst3_mult_2in (.i_a(tanh_state_t), .i_b(temp_o), .o(temp_h));
+mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst2_mult_2in (.i_a(temp_f), .i_b(i_prev_state), .o(mul_fc));
 
 //state_t = a(t) * i(t) + f(t) * c(t-1)
 adder_2in #(.WIDTH(WIDTH)) inst_adder_2in (.i_a(mul_ai), .i_b(mul_fc), .o(state_t));
 
-multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_c (.i_a(32'b0), .i_b(reg_c), .sel(sel), .o(out_multiplexer_c));
-
-// multiplexer #(.WIDTH(WIDTH)) inst_multiplexer_h (.i_a(32'b0), .i_b(reg_input), .sel(sel), .o(out_multiplexer_h));
-
+// o_h = tanh(state(t)  * o
 tanh #(.WIDTH(WIDTH)) inst_tanh (.i(state_t), .o(tanh_state_t));
-
-sto_reg #(.WIDTH(WIDTH), .NUM(1)) inst_sto_reg (.clk(clk), .rst(rst), .load(load_h), .i(temp_h), .o(o_h_prev));
-
-always @(posedge clk or rst)
-begin
-	if (rst)
-	begin
-		reg_c<=0;
-  	end
-	else
-  	begin 
-		reg_c<= state_t;
-	end
-end
+mult_2in #(.WIDTH(WIDTH), .FRAC(24)) inst3_mult_2in (.i_a(tanh_state_t), .i_b(temp_o), .o(temp_h));
 
 assign o_c = state_t;
 assign o_a = temp_a;
