@@ -26,10 +26,10 @@ always @(posedge clk or rst)
 begin   
   if (rst==1'b1) 
     count <= 0;
-  else 
-  begin
+  else if (count > 359)
+  	count <= 0;
+  else
     count <= count +1;
-  end
 end
 
 endmodule
