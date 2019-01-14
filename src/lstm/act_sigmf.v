@@ -11,7 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module act_sigmoid (clk, rst, wr, i_k, i_w, i_b, o_a, o_w, o_b);
+module act_sigmoid (clk, rst, wr, rd_addr, wr_addr, i_k, i_w, i_b, o_a, o_w, o_b);
 
 // parameters
 parameter NUM = 68;
@@ -24,6 +24,7 @@ input clk, rst;
 
 // control ports
 input wr;
+input signed [8:0] rd_addr, wr_addr;
 
 // input ports
 input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_k;
@@ -42,7 +43,7 @@ wire signed [(NUM+NUM_LSTM)*WIDTH-1:0] wght;
 wire signed [WIDTH-1:0] bias;
 
 // registers
-reg signed [(NUM+NUM_LSTM+1)*WIDTH-1:0] wght_mem [0:0];
+reg signed [(NUM+NUM_LSTM+1)*WIDTH-1:0] wght_mem [0:NUM_LSTM-1];
 
 
 always @(posedge clk or posedge rst)
@@ -55,14 +56,14 @@ begin
 	else if (wr)
 	begin
 		// To add new value to RAM
-		wght_mem[0] <= {i_w, i_b};
+		wght_mem[wr_addr] <= {i_w, i_b};
 		$writememh(FILE_NAME, wght_mem);
 	end
 end
 
 // To read value from RAM
-assign bias = wght_mem[0][WIDTH-1:0];
-assign wght = wght_mem[0][(NUM+NUM_LSTM+1)*WIDTH-1:WIDTH];
+assign bias = wght_mem[rd_addr][WIDTH-1:0];
+assign wght = wght_mem[rd_addr][(NUM+NUM_LSTM+1)*WIDTH-1:WIDTH];
 
 // Generate N multiplier, o_mul is an array of multiplier outputs, WIDTH bits each
 mult_2in #(.WIDTH(WIDTH)) mult[NUM+NUM_LSTM-1:0] (.i_a(i_k), .i_b(wght), .o(o_mul));

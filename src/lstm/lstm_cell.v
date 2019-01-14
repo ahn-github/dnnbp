@@ -11,7 +11,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module lstm_cell (clk, rst, wr, i_x, i_prev_state, i_w_a, i_w_i, i_w_f, i_w_o,  
+module lstm_cell (clk, rst, wr, rd_addr, wr_addr, i_x, i_prev_state, i_w_a, i_w_i, i_w_f, i_w_o,  
 i_b_a, i_b_i,  i_b_f, i_b_o,
 o_w_a, o_w_i,  o_w_f, o_w_o, 
 o_b_a, o_b_i, o_b_f, o_b_o, 
@@ -32,6 +32,7 @@ input clk, rst;
 
 // control ports
 input wr;
+input signed [8:0] rd_addr, wr_addr;
 
 // input ports
 input signed [(NUM+NUM_LSTM)*WIDTH-1:0] i_x;
@@ -85,6 +86,8 @@ act_tanh #(
 			.clk (clk),
 			.rst (rst),
 			.wr  (wr),
+			.rd_addr (rd_addr),
+			.wr_addr (wr_addr),
 			.i_k (i_x),
 			.i_w(i_w_a),
 			.i_b(i_b_a),
@@ -103,6 +106,8 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
+			.rd_addr (rd_addr),
+			.wr_addr (wr_addr),
 			.i_k (i_x),
 			.i_w(i_w_i),
 			.i_b(i_b_i),
@@ -120,6 +125,8 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
+			.rd_addr (rd_addr),
+			.wr_addr (wr_addr),
 			.i_k (i_x),
 			.i_w(i_w_f),
 			.i_b(i_b_f),
@@ -137,6 +144,8 @@ act_sigmoid #(
 			.clk (clk),
 			.rst (rst),
 			.wr(wr),
+			.rd_addr (rd_addr),
+			.wr_addr (wr_addr),
 			.i_k (i_x),
 			.i_w(i_w_o),
 			.i_b(i_b_o),

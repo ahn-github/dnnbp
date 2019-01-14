@@ -1,4 +1,7 @@
-module datapath(clk, rst, wr_h1, wr_h2, wr_c1, wr_c2, wr_x2, wr_layr1, wr_layr2, addr_x1, rd_addr_x2, wr_addr_x2,
+module datapath(clk, rst, wr_h1, wr_h2, wr_c1, wr_c2, wr_x2, 
+	            addr_x1, rd_addr_x2, wr_addr_x2,
+	            wr_layr1, rd_addr_layr1, wr_addr_layr1,
+	            wr_layr2, rd_addr_layr2, wr_addr_layr2, 
                 rd_addr_h1, rd_addr_h2, rd_addr_c1, rd_addr_c2,
                 wr_addr_h1, wr_addr_h2, wr_addr_c1, wr_addr_c2);
 
@@ -41,6 +44,8 @@ input wr_c1;
 input [8:0] rd_addr_c1;
 input [8:0] wr_addr_c1;
 input wr_layr1;
+input [8:0] rd_addr_layr1;
+input [8:0] wr_addr_layr1;
 
 input wr_x2;
 input wr_h2;
@@ -50,17 +55,19 @@ input wr_c2;
 input [8:0] rd_addr_c2;
 input [8:0] wr_addr_c2;
 input wr_layr2;
+input [8:0] rd_addr_layr2;
+input [8:0] wr_addr_layr2;
 
 // registers
 reg signed [WIDTH-1:0] reg_c1, reg_c2;
 reg signed [WIDTH-1:0] reg_h1, reg_h2;
-wire signed [WIDTH-1:0] prev_c1, prev_c2;
 reg signed [(LAYR1_CELL+LAYR1_INPUT)*WIDTH-1:0] layr1_in;
 reg signed [(LAYR2_CELL+LAYR1_CELL)*WIDTH-1:0] layr2_in;
 
 // wires
 wire signed [LAYR1_INPUT*WIDTH-1:0] data_x1;
 
+wire signed [WIDTH-1:0] prev_c1, prev_c2;
 wire signed [WIDTH-1:0] i_mem_h1, i_mem_x2, i_mem_h2;
 wire signed [WIDTH-1:0] i_mem_c1, i_mem_c2;
 wire signed [WIDTH-1:0] o_mem_c1, o_mem_c2;
@@ -174,6 +181,8 @@ lstm_cell #(
 		.clk          (clk),
 		.rst          (rst),
 		.wr           (wr_layr1),
+		.rd_addr      (rd_addr_layr1),
+		.wr_addr      (wr_addr_layr1),
 		.i_x          (conc_x1),
 		.i_prev_state (prev_c1),
 		.i_w_a        (),
@@ -263,10 +272,10 @@ assign conc_x2 = {o_mem_h2, o_mem_x2};
 // LAYER 2 Input Pipeline Register
 // in: clk, data (61*WIDTH)
 // out: conc_x (61*WIDTH)
-always @(posedge clk) 
-begin
-	layr2_in <= conc_x2;
-end
+// always @(posedge clk) 
+// begin
+// 	layr2_in <= conc_x2;
+// end
 
 // LAYER 2 State Memory
 // in: i (WIDTH)
@@ -311,6 +320,8 @@ lstm_cell #(
 		.clk          (clk),
 		.rst          (rst),
 		.wr           (wr_layr2),
+		.rd_addr      (rd_addr_layr2),
+		.wr_addr      (wr_addr_layr2),
 		.i_x          (conc_x2),
 		.i_prev_state (prev_c2),
 		.i_w_a        (),
