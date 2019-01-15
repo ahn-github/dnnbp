@@ -1,20 +1,10 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// By : Joshua, Teresia Savera, Yashael Faith
-// 
-// Module Name		: Sigmoid Activation Function Module
-// File Name		: sigmf.v
-// Version			: 1.0
-// Description		: Calculation sigmoid function as the activation function
-//                    for neural network 
-//
-////////////////////////////////////////////////////////////////////////////////
+//Sigmoid function approach using partial linearization
+//with 3 gradient value 0,1/4, and 1/8
 
-module sigmf(i, o);
+module sigmf( i,o);
 
 // parameters
 parameter WIDTH = 32;
-parameter ONE = 32'b0000_0001_0000_0000_0000_0000_0000_0000; //variable for decimal value of 1
 
 // input ports
 input [WIDTH-1:0] i;
@@ -22,36 +12,31 @@ input [WIDTH-1:0] i;
 // output ports
 output[WIDTH-1:0] o;
 
-// wires
-wire [2:0] ctrl_seg;
-wire [WIDTH-1:0] mid_seg;
-wire [WIDTH-1:0] pos, var_x;
-wire [WIDTH-1:0] coef0_coef_sel, coef1_coef_sel, coef2_coef_sel;
-wire [WIDTH-1:0] o_mul2, o_mul3, o_add;
+  wire [WIDTH-1:0] outmux0, outmux1, outmux2, outmux3;
+  wire [WIDTH-1:0] result;
+  wire slc0, slc1, slc4; //slc12=slc1 ; slc3 = slc0
+  
+  assign eight_input = i[WIDTH-1] ? {2'b111, i[WIDTH-1:3]} : {2'b000, i[WIDTH-1:3]};
+  assign quarter_input = i[WIDTH-1] ? {2'b11, i[WIDTH-1:2]} : {2'b00, i[WIDTH-1:2]};
 
-// Calculate variable x, a taylor series input
-assign pos  = i[WIDTH-1] ? (~i + 1) : i; // choosing positive value
-assign var_x = pos - mid_seg; 
-
-// Choosing middle value
-segmentation seg (.i(i), .o_ctrl(ctrl_seg), .o_mid(mid_seg));
-
-// and taylor series coefficient based on input
-sigm_coef coef_sel (
-    .i_sel(ctrl_seg),
-    .o_coef0(coef0_coef_sel),
-    .o_coef1(coef1_coef_sel),
-    .o_coef2(coef2_coef_sel)
-);
-
-// multiplying and adding for taylor series
-mult_2in mul2 (.i_a(coef1_coef_sel), .i_b(var_x), .o(o_mul2));
-mult_3in mul3 (.i_a(coef2_coef_sel), .i_b(var_x), .i_c(var_x), .o(o_mul3));
-adder_3in add (.i_a(coef0_coef_sel), .i_b(o_mul2), .i_c(o_mul3), .o(o_add));
-
-// for negative value, output = 1-sigmoid(x)
-// for positive value, output = sigmoid(x)
-assign o = i[WIDTH-1] ? (ONE - o_add) : o_add; 
-
+  //Linear region
+  //mux0 : Constant selector  y1 = 0.375 or y3 = 0.625
+  assign outmux0 = slc0 ? 32'h00600000 : 32'h00A00000;
+  //mux1 : Constant selector outmux1 = c (outmux0 or 0.5)
+  assign outmux1 = slc1 ? outmux0 : 32'h00800000;
+  //mux2 : Gradien selector mx (x/8) or (x/4) 
+  assign outmux2 = slc1 ? eight_input : quarter_input;
+  //adder to calculate output function
+  assign result = outmux2 + outmux1; //mx + c
+  
+  //Saturation
+  //mux3 : Saturation selector (0 or 0.999(approximately 1))
+  assign outmux3 = slc0 ? 32'h0 : 32'h00FD7A3;
+  //mux4 : Output selector
+  assign o = slc4 ? outmux3 : result;
+  
+  //Select wire assignment
+  assign slc0 = i[WIDTH-1];                           // slc0 : 1 if negative
+  assign slc1 = (i<32'hFF000000)&&(i>32'hFF000000); // slc1 = (in<-1.0)||(in>1.0)
+  assign slc4 = (i<32'h03000000)&&(i>32'h03000000); // slc4 = (in<-3.0)||(in>3.0)
 endmodule
-
